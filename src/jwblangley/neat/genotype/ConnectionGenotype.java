@@ -1,5 +1,8 @@
 package jwblangley.neat.genotype;
 
+/**
+ * Genotype representing a connection between two neurons
+ */
 public class ConnectionGenotype {
 
   private final NeuronGenotype neuronFrom;
@@ -9,6 +12,15 @@ public class ConnectionGenotype {
   private double weight;
   private boolean enabled;
 
+  /**
+   * Construct a new ConnectionGenotype
+   *
+   * @param neuronFrom       neuron the connection is from
+   * @param neuronTo         neuron the connection is to
+   * @param innovationMarker identifier for the creation of this
+   *                         connection as a result of an innovation
+   * @param weight           initial weight for this connection
+   */
   public ConnectionGenotype(
       NeuronGenotype neuronFrom,
       NeuronGenotype neuronTo,
