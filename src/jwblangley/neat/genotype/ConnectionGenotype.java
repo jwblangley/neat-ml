@@ -20,18 +20,30 @@ public class ConnectionGenotype {
    * @param innovationMarker identifier for the creation of this
    *                         connection as a result of an innovation
    * @param weight           initial weight for this connection
+   * @param enabled          whether the new connection is initially enabled
    */
   public ConnectionGenotype(
       NeuronGenotype neuronFrom,
       NeuronGenotype neuronTo,
       int innovationMarker,
-      double weight) {
+      double weight,
+      boolean enabled) {
 
     this.neuronFrom = neuronFrom;
     this.neuronTo = neuronTo;
     this.innovationMarker = innovationMarker;
     this.weight = weight;
-    this.enabled = true;
+    this.enabled = enabled;
+  }
+
+  public ConnectionGenotype(ConnectionGenotype toCopy) {
+    this(
+        new NeuronGenotype(toCopy.neuronFrom),
+        new NeuronGenotype(toCopy.neuronTo),
+        toCopy.innovationMarker,
+        toCopy.weight,
+        toCopy.enabled
+    );
   }
 
   public NeuronGenotype getNeuronFrom() {

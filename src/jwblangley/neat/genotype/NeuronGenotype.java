@@ -12,8 +12,9 @@ public class NeuronGenotype {
 
   /**
    * Constructs a new NeuronGenotype
+   *
    * @param layer the layer in which this neuron resides
-   * @param uid unique identifier for this neuron
+   * @param uid   unique identifier for this neuron
    */
   public NeuronGenotype(NeuronLayer layer, int uid) {
     this.layer = layer;
@@ -21,7 +22,8 @@ public class NeuronGenotype {
   }
 
   /**
-   * Copy constructor: creates a new NeuronGenotype object equal to toCopy
+   * Copy constructor: creates a new, deeply copied, NeuronGenotype object equal to toCopy
+   *
    * @param toCopy NeuronGenotype to be copied
    */
   public NeuronGenotype(NeuronGenotype toCopy) {
