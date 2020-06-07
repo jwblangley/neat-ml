@@ -3,6 +3,7 @@ package jwblangley.neat.genotype;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -72,5 +73,23 @@ public class NetworkGenotype {
     return connections.stream()
         .filter(con -> con.getInnovationMarker() == innovationMarker)
         .findAny();
+  }
+
+  /**
+   *
+   * @param random seeded Random object
+   * @return a random NeuronGenotype from those in this network
+   */
+  private NeuronGenotype randomNeuron(Random random) {
+    return neurons.get(random.nextInt(neurons.size()));
+  }
+
+  /**
+   *
+   * @param random seeded Random object
+   * @return a random ConnectionGenotype from those in this network
+   */
+  private ConnectionGenotype randomConnection(Random random) {
+    return connections.get(random.nextInt(connections.size()));
   }
 }

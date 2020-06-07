@@ -2,7 +2,6 @@ package jwblangley.neat.genotype;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Optional;
@@ -83,7 +82,7 @@ public class NetworkGenotypeTest {
         = network.getConnectionByInnovationMarker(target.getInnovationMarker());
 
     assertTrue(result.isPresent());
-    assertSame(target, result.get());
+    assertEquals(target, result.get());
   }
 
 }
