@@ -2,6 +2,7 @@ package jwblangley.neat.genotype;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 
 import java.util.List;
 import java.util.Random;
@@ -251,5 +252,60 @@ public class NetworkGenotypeMutationTest {
     assertEquals(targetWeight, firstConnection.getWeight() * secondConnection.getWeight(), DELTA);
   }
 
+  @Test
+  public void weightMutationChangesWeight() {
+    InnovationGenerator innovation = new InnovationGenerator();
+    Random random = new Random(100);
+
+    NetworkGenotype network = new NetworkGenotype();
+
+    NeuronGenotype input = new NeuronGenotype(NeuronLayer.INPUT, 0);
+    NeuronGenotype output = new NeuronGenotype(NeuronLayer.OUTPUT, 1);
+
+    network.addNeuron(input);
+    network.addNeuron(output);
+
+    final double origWeight = 0.5;
+
+    ConnectionGenotype connection = new ConnectionGenotype(0, 1, innovation.next(), origWeight, true);
+
+    network.addConnection(connection);
+
+    network.weightMutation(random);
+
+    assertNotEquals(origWeight, connection.getWeight(), DELTA);
+  }
+
+  @Test
+  public void weightMutationChangesAllWeights() {
+    InnovationGenerator innovation = new InnovationGenerator();
+    Random random = new Random(100);
+
+    NetworkGenotype network = new NetworkGenotype();
+
+    NeuronGenotype input = new NeuronGenotype(NeuronLayer.INPUT, 0);
+    NeuronGenotype intermediary = new NeuronGenotype(NeuronLayer.INPUT, 1);
+    NeuronGenotype output = new NeuronGenotype(NeuronLayer.OUTPUT, 2);
+
+    network.addNeuron(input);
+    network.addNeuron(intermediary);
+    network.addNeuron(output);
+
+    final double origWeight = 0.5;
+
+    ConnectionGenotype connectionA = new ConnectionGenotype(0, 1, innovation.next(), origWeight, true);
+    ConnectionGenotype connectionB = new ConnectionGenotype(1, 2, innovation.next(), origWeight, true);
+    ConnectionGenotype connectionC = new ConnectionGenotype(0, 2, innovation.next(), origWeight, true);
+
+    network.addConnection(connectionA);
+    network.addConnection(connectionB);
+    network.addConnection(connectionC);
+
+    network.weightMutation(random);
+
+    assertNotEquals(origWeight, connectionA.getWeight(), DELTA);
+    assertNotEquals(origWeight, connectionB.getWeight(), DELTA);
+    assertNotEquals(origWeight, connectionC.getWeight(), DELTA);
+  }
 
 }

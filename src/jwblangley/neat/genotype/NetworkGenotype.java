@@ -105,12 +105,12 @@ public class NetworkGenotype {
   }
 
   /**
-   * Create a new connection between two randomly chosen existing neurons
-   * without creating cycles
-   * @param random seeded Random object
-   * @param innovation innovation marker generator
-   * @param maxAttempts maximum number of attempts at selecting two random compatible
-   *                    neurons to connect
+   * Create a new connection between two randomly chosen existing neurons without creating cycles
+   *
+   * @param random      seeded Random object
+   * @param innovation  innovation marker generator
+   * @param maxAttempts maximum number of attempts at selecting two random compatible neurons to
+   *                    connect
    * @return whether the connection was successful
    */
   public boolean addConnectionMutation(
@@ -162,11 +162,11 @@ public class NetworkGenotype {
   }
 
   /**
-   * Splits a randomly chosen connection into two new connections, with a new neuron
-   * created between the two. The old connection is disabled.
-   * The first new connection has a weight of 1 and the second inherits the weight
-   * of the old connection
-   * @param random seeded Random object
+   * Splits a randomly chosen connection into two new connections, with a new neuron created between
+   * the two. The old connection is disabled. The first new connection has a weight of 1 and the
+   * second inherits the weight of the old connection
+   *
+   * @param random     seeded Random object
    * @param innovation innovation marker generator
    */
   public void addNeuronMutation(Random random, InnovationGenerator innovation) {
@@ -180,11 +180,11 @@ public class NetworkGenotype {
 
     // Create two new connections in place of the original connection
     ConnectionGenotype fromToNew = new ConnectionGenotype(
-      originalConnection.getNeuronFrom(),
-      newNeuron.getUid(),
-      innovation.next(),
-      1d,
-      true
+        originalConnection.getNeuronFrom(),
+        newNeuron.getUid(),
+        innovation.next(),
+        1d,
+        true
     );
     ConnectionGenotype newToTo = new ConnectionGenotype(
         newNeuron.getUid(),
@@ -198,11 +198,27 @@ public class NetworkGenotype {
     connections.add(newToTo);
   }
 
+  /**
+   * Mutates the weights of every connection by perturbation or by assigning a new random weight
+   *
+   * @param random seeded Random object
+   */
+  public void weightMutation(Random random) {
+    for (ConnectionGenotype connection : connections) {
+      if (random.nextDouble() < W_PROB_PERTURB) {
+        connection.setWeight(connection.getWeight() * 2 * generateRandomWeight(random));
+      } else {
+        connection.setWeight(generateRandomWeight(random) * 2);
+      }
+    }
+  }
+
 
   /**
    * Checks whether adding a connection will cause cycles
+   *
    * @param additionalFrom the uid of the neuron which the additional connection would be from
-   * @param additionalTo the uid of the neuron which the additional connection would be to
+   * @param additionalTo   the uid of the neuron which the additional connection would be to
    * @return whether the additional connection would create cycles
    */
   public boolean circularIfConnected(NeuronGenotype additionalFrom, NeuronGenotype additionalTo) {
