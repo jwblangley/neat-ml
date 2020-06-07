@@ -199,7 +199,6 @@ public class NetworkGenotype {
     originalConnection.disable();
 
     // Create a new neuron with the next available ID
-    // TODO: this was a change, check this works
     NeuronGenotype newNeuron = new NeuronGenotype(NeuronLayer.HIDDEN);
     neurons.add(newNeuron);
 

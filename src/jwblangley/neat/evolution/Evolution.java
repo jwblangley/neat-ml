@@ -73,9 +73,13 @@ public class Evolution {
   }
 
   /**
-   * TODO
+   * Sort a generation into species,
+   * evaluate each member of the generation,
+   * kill off weaker members,
+   * generate child members from surviving members
+   * repopulate generation
    *
-   * @param random
+   * @param random seeded Random object
    */
   public void evolve(Random random) {
     // Reset all stats before next generation evaluation
