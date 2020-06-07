@@ -22,7 +22,7 @@ public class NeuronGenotype {
   }
 
   /**
-   * Copy constructor: creates a new, deeply copied, NeuronGenotype object equal to toCopy
+   * Copy constructor: creates a new NeuronGenotype object equal to toCopy
    *
    * @param toCopy NeuronGenotype to be copied
    */

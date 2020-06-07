@@ -8,27 +8,21 @@ import org.junit.Test;
 public class ConnectionGenotypeTest {
 
   @Test
-  public void testCopiedObjectsDeeplyCopied() {
-    NeuronGenotype fromNeuron = new NeuronGenotype(NeuronLayer.HIDDEN, 1);
-    NeuronGenotype toNeuron = new NeuronGenotype(NeuronLayer.HIDDEN, 2);
-
+  public void testCopiedObjectsAreEqual() {
+    // Setup
     ConnectionGenotype connection = new ConnectionGenotype(
-        fromNeuron,
-        toNeuron,
+        1,
+        2,
         1,
         0,
         true
     );
 
+    // Perform copy
     ConnectionGenotype copiedConnection = new ConnectionGenotype(connection);
 
     assertNotSame(copiedConnection, connection);
-
-    assertNotSame(fromNeuron, copiedConnection.getNeuronFrom());
-    assertEquals(fromNeuron, copiedConnection.getNeuronFrom());
-
-    assertNotSame(toNeuron, copiedConnection.getNeuronTo());
-    assertEquals(toNeuron, copiedConnection.getNeuronTo());
+    assertEquals(copiedConnection, connection);
   }
 
 }
