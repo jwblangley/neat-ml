@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class NetworkGenotypeMutationTest {
 
-  final static double DELTA = 0.00001;
+  private final static double DELTA = 0.00001;
 
   @Test
   public void addConnectionMutationAddsSingleConnection() {
@@ -119,6 +119,136 @@ public class NetworkGenotypeMutationTest {
     );
 
     assertFalse(network.addConnectionMutation(random, innovation, 1000));
+  }
+
+  @Test
+  public void addNeuronMutationAddsANeuron() {
+    InnovationGenerator innovation = new InnovationGenerator();
+    Random random = new Random();
+
+    NetworkGenotype network = new NetworkGenotype();
+
+    NeuronGenotype input = new NeuronGenotype(NeuronLayer.INPUT, 0);
+    NeuronGenotype output = new NeuronGenotype(NeuronLayer.OUTPUT, 1);
+
+    network.addNeuron(input);
+    network.addNeuron(output);
+
+    ConnectionGenotype connection = new ConnectionGenotype(0, 1, innovation.next(), 0.5f, true);
+    network.addConnection(connection);
+
+    network.addNeuronMutation(random, innovation);
+
+    assertEquals(3, network.getNeurons().size());
+  }
+
+  @Test
+  public void addNeuronMutationAddsConnections() {
+    InnovationGenerator innovation = new InnovationGenerator();
+    Random random = new Random();
+
+    NetworkGenotype network = new NetworkGenotype();
+
+    NeuronGenotype input = new NeuronGenotype(NeuronLayer.INPUT, 0);
+    NeuronGenotype output = new NeuronGenotype(NeuronLayer.OUTPUT, 1);
+
+    network.addNeuron(input);
+    network.addNeuron(output);
+
+    ConnectionGenotype connection = new ConnectionGenotype(0, 1, innovation.next(), 0.5f, true);
+    network.addConnection(connection);
+
+    network.addNeuronMutation(random, innovation);
+
+    assertEquals(2,
+        network.getConnections().stream().filter(ConnectionGenotype::isEnabled).count());
+  }
+
+  @Test
+  public void addNeuronMutationDisablesOriginalConnection() {
+    InnovationGenerator innovation = new InnovationGenerator();
+    Random random = new Random();
+
+    NetworkGenotype network = new NetworkGenotype();
+
+    NeuronGenotype input = new NeuronGenotype(NeuronLayer.INPUT, 0);
+    NeuronGenotype output = new NeuronGenotype(NeuronLayer.OUTPUT, 1);
+
+    network.addNeuron(input);
+    network.addNeuron(output);
+
+    ConnectionGenotype connection = new ConnectionGenotype(0, 1, innovation.next(), 0.5f, true);
+    network.addConnection(connection);
+
+    network.addNeuronMutation(random, innovation);
+
+    assertFalse(connection.isEnabled());
+  }
+
+  @Test
+  public void addNeuronMutationSplitsConnection() {
+    InnovationGenerator innovation = new InnovationGenerator();
+    Random random = new Random();
+
+    NetworkGenotype network = new NetworkGenotype();
+
+    NeuronGenotype input = new NeuronGenotype(NeuronLayer.INPUT, 0);
+    NeuronGenotype output = new NeuronGenotype(NeuronLayer.OUTPUT, 1);
+
+    network.addNeuron(input);
+    network.addNeuron(output);
+
+    ConnectionGenotype connection = new ConnectionGenotype(0, 1, innovation.next(), 0.5f, true);
+    network.addConnection(connection);
+
+    network.addNeuronMutation(random, innovation);
+
+    ConnectionGenotype firstConnection = network.getConnections().get(1);
+    ConnectionGenotype secondConnection;
+    if (firstConnection.getNeuronFrom() == 0) {
+      secondConnection = network.getConnections().get(2);
+    } else {
+      firstConnection = network.getConnections().get(2);
+      secondConnection = network.getConnections().get(1);
+    }
+
+    for (ConnectionGenotype con : network.getConnections()) {
+      System.out.println("con.getNeuronFrom() = " + con.getNeuronFrom());
+      System.out.println("con.getNeuronTo() = " + con.getNeuronTo());
+    }
+
+    assertEquals(0, firstConnection.getNeuronFrom());
+
+    assertEquals(1, secondConnection.getNeuronTo());
+
+    assertFalse(connection.isEnabled());
+  }
+
+  @Test
+  public void addNeuronMutationPreservesWeightAcrossConnection() {
+    InnovationGenerator innovation = new InnovationGenerator();
+    Random random = new Random();
+
+    NetworkGenotype network = new NetworkGenotype();
+
+    NeuronGenotype input = new NeuronGenotype(NeuronLayer.INPUT, 0);
+    NeuronGenotype output = new NeuronGenotype(NeuronLayer.OUTPUT, 1);
+
+    network.addNeuron(input);
+    network.addNeuron(output);
+
+    final double targetWeight = 0.5;
+
+    ConnectionGenotype connection
+        = new ConnectionGenotype(0, 1, innovation.next(), targetWeight, true);
+    network.addConnection(connection);
+
+    network.addNeuronMutation(random, innovation);
+
+    ConnectionGenotype firstConnection = network.getConnections().get(1);
+    ConnectionGenotype secondConnection = network.getConnections().get(2);
+
+    assertEquals(targetWeight, firstConnection.getWeight() * secondConnection.getWeight(), DELTA);
   }
 
 

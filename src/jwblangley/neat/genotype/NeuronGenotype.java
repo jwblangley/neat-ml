@@ -1,11 +1,14 @@
 package jwblangley.neat.genotype;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Genotype representing a neuron
  */
 public class NeuronGenotype {
+
+  private final static AtomicInteger uidGenerator = new AtomicInteger();
 
   private final NeuronLayer layer;
   private final int uid;
@@ -20,6 +23,11 @@ public class NeuronGenotype {
     this.layer = layer;
     this.uid = uid;
   }
+
+  public NeuronGenotype(NeuronLayer layer) {
+    this(layer, uidGenerator.getAndIncrement());
+  }
+
 
   /**
    * Copy constructor: creates a new NeuronGenotype object equal to toCopy

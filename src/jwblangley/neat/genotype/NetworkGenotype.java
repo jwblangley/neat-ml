@@ -161,7 +161,50 @@ public class NetworkGenotype {
     return false;
   }
 
+  /**
+   * Splits a randomly chosen connection into two new connections, with a new neuron
+   * created between the two. The old connection is disabled.
+   * The first new connection has a weight of 1 and the second inherits the weight
+   * of the old connection
+   * @param random seeded Random object
+   * @param innovation innovation marker generator
+   */
+  public void addNeuronMutation(Random random, InnovationGenerator innovation) {
+    ConnectionGenotype originalConnection = getRandomConnection(random);
+    originalConnection.disable();
 
+    // Create a new neuron with the next available ID
+    // TODO: this was a change, check this works
+    NeuronGenotype newNeuron = new NeuronGenotype(NeuronLayer.HIDDEN);
+    neurons.add(newNeuron);
+
+    // Create two new connections in place of the original connection
+    ConnectionGenotype fromToNew = new ConnectionGenotype(
+      originalConnection.getNeuronFrom(),
+      newNeuron.getUid(),
+      innovation.next(),
+      1d,
+      true
+    );
+    ConnectionGenotype newToTo = new ConnectionGenotype(
+        newNeuron.getUid(),
+        originalConnection.getNeuronTo(),
+        innovation.next(),
+        originalConnection.getWeight(),
+        true
+    );
+
+    connections.add(fromToNew);
+    connections.add(newToTo);
+  }
+
+
+  /**
+   * Checks whether adding a connection will cause cycles
+   * @param additionalFrom the uid of the neuron which the additional connection would be from
+   * @param additionalTo the uid of the neuron which the additional connection would be to
+   * @return whether the additional connection would create cycles
+   */
   public boolean circularIfConnected(NeuronGenotype additionalFrom, NeuronGenotype additionalTo) {
     List<NeuronGenotype> inputs = neurons.stream()
         .filter(n -> n.getLayer() == NeuronLayer.INPUT)
