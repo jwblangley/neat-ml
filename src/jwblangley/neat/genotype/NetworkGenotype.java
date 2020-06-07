@@ -104,6 +104,15 @@ public class NetworkGenotype {
     return (random.nextDouble() * 2d) - 1d;
   }
 
+  /**
+   * Create a new connection between two randomly chosen existing neurons
+   * without creating cycles
+   * @param random seeded Random object
+   * @param innovation innovation marker generator
+   * @param maxAttempts maximum number of attempts at selecting two random compatible
+   *                    neurons to connect
+   * @return whether the connection was successful
+   */
   public boolean addConnectionMutation(
       Random random, InnovationGenerator innovation, int maxAttempts) {
 
@@ -125,13 +134,31 @@ public class NetworkGenotype {
       }
 
       // Prevent circular connections
-      if (circularIfConnected(firstNeuron, secondNeuron)) {
+      if (firstNeuron.equals(secondNeuron)
+          || circularIfConnected(firstNeuron, secondNeuron)) {
         continue;
       }
 
+      final boolean reversed = secondNeuron.getLayer().compareTo(firstNeuron.getLayer()) < 0;
+
+      // Create new connection
+      ConnectionGenotype connection = new ConnectionGenotype(
+          reversed ? secondNeuron.getUid() : firstNeuron.getUid(),
+          reversed ? firstNeuron.getUid() : secondNeuron.getUid(),
+          innovation.next(),
+          generateRandomWeight(random),
+          true
+      );
+
+      // Prevent overriding connections
+      if (connections.contains(connection)) {
+        continue;
+      }
+
+      return connections.add(connection);
     }
 
-    return true;
+    return false;
   }
 
 
@@ -140,8 +167,9 @@ public class NetworkGenotype {
         .filter(n -> n.getLayer() == NeuronLayer.INPUT)
         .collect(Collectors.toList());
 
-    for(NeuronGenotype input : inputs) {
-      if (dfsCheck(input.getUid(), new Stack<>(), new HashSet<>(), additionalFrom.getUid(), additionalTo.getUid())) {
+    for (NeuronGenotype input : inputs) {
+      if (dfsCheck(input.getUid(), new Stack<>(), new HashSet<>(), additionalFrom.getUid(),
+          additionalTo.getUid())) {
         return true;
       }
     }
@@ -149,7 +177,8 @@ public class NetworkGenotype {
     return false;
   }
 
-  private boolean dfsCheck(int currentUid, Stack<Integer> path, Set<Integer> visited, int additionalFrom, int additionalTo) {
+  private boolean dfsCheck(int currentUid, Stack<Integer> path,
+      Set<Integer> visited, int additionalFrom, int additionalTo) {
     // Add current to path and visited
     path.push(currentUid);
     visited.add(currentUid);
