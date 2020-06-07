@@ -53,10 +53,18 @@ public class ConnectionGenotype {
     );
   }
 
+  /**
+   *
+   * @return uid of the neuron the connection is from
+   */
   public int getNeuronFrom() {
     return neuronFrom;
   }
 
+  /**
+   *
+   * @return uid of the neuron the connection is to
+   */
   public int getNeuronTo() {
     return neuronTo;
   }
@@ -96,19 +104,13 @@ public class ConnectionGenotype {
     ConnectionGenotype that = (ConnectionGenotype) other;
 
     boolean equal = this.neuronFrom == that.neuronFrom &&
-        this.neuronTo == that.neuronTo &&
-        this.innovationMarker == that.innovationMarker;
-
-    assert !equal || Double.compare(this.weight, that.weight) == 0
-        : "equal connections should have the same weight";
-    assert !equal || this.enabled == that.enabled
-        : "equal connections should have the same enablement state";
+        this.neuronTo == that.neuronTo;
 
     return equal;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(neuronFrom, neuronTo, innovationMarker);
+    return Objects.hash(neuronFrom, neuronTo);
   }
 }
