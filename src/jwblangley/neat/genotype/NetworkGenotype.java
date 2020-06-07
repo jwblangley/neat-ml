@@ -9,11 +9,29 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import jwblangley.neat.evolution.InnovationGenerator;
+import jwblangley.neat.util.DisjointExcess;
+import jwblangley.neat.util.ImmutableHomogeneousPair;
 
 /**
  * Genotype representing a neural network
  */
 public class NetworkGenotype {
+
+  /**
+   * Constant for compatibility distance calculation weighting the relative
+   * importance of excess genes
+   */
+  public static final double DIST_C1 = 1d;
+  /**
+   * Constant for compatibility distance calculation weighting the relative
+   * importance of disjoint genes
+   */
+  public static final double DIST_C2 = 1d;
+  /**
+   * Constant for compatibility distance calculation weighting the relative
+   * importance of the average difference in weights of matching genes
+   */
+  public static final double DIST_C3 = 0.4d;
 
   /**
    * Probability of perturbing a weight rather than assigning a new random weight during weight
@@ -38,7 +56,6 @@ public class NetworkGenotype {
    * @param toCopy NetworkGenotype to be copied
    */
   public NetworkGenotype(NetworkGenotype toCopy) {
-    // N.B: NetworkGenotype and ConnectionGenotype copy constructors are deep copies
     neurons = toCopy.neurons.stream()
         .map(NeuronGenotype::new)
         .collect(Collectors.toList());
@@ -269,6 +286,57 @@ public class NetworkGenotype {
     }
 
     return childNetwork;
+  }
+
+  /**
+   * Calculate how 'similar' two network genooypes are with the calculation: delta = (c_1 * E / N) +
+   * (c_2 * D / N) + c_3 * W_bar
+   *
+   * @param first
+   * @param second
+   * @return compatibility distance between the two - greater -> more different
+   */
+  public static double compatibilityDistance(NetworkGenotype first, NetworkGenotype second) {
+    List<Integer> firstParentInnovations = first.getConnections().stream()
+        .map(ConnectionGenotype::getInnovationMarker)
+        .collect(Collectors.toList());
+    List<Integer> secondParentInnovations = second.getConnections().stream()
+        .map(ConnectionGenotype::getInnovationMarker)
+        .collect(Collectors.toList());
+
+    ImmutableHomogeneousPair<Integer> disjointExcesses
+        = DisjointExcess.calculate(firstParentInnovations, secondParentInnovations);
+    final int disjoints = disjointExcesses.getFirst();
+    final int excesses = disjointExcesses.getSecond();
+
+    final double avgWeightDiffOfMatching = averageWeightDifferenceOfMatchingGenes(first, second);
+
+    int numGenes = Math.max(first.getConnections().size(), second.getConnections().size());
+
+    return DIST_C1 * excesses / ((double) numGenes)
+        + DIST_C2 * disjoints / ((double) numGenes)
+        + DIST_C3 * avgWeightDiffOfMatching;
+  }
+
+  private static double averageWeightDifferenceOfMatchingGenes(NetworkGenotype first,
+      NetworkGenotype second) {
+
+    double totalDifference = 0;
+    int numMatch = 0;
+
+    for (ConnectionGenotype parent1ConnectionGenotype : first.getConnections()) {
+      Optional<ConnectionGenotype> parent2Connection
+          = second.getConnectionByInnovationMarker(parent1ConnectionGenotype.getInnovationMarker());
+
+      // Check if second also contains the same gene
+      if (parent2Connection.isPresent()) {
+        // Matching gene
+        numMatch++;
+        totalDifference += Math.abs(
+            parent1ConnectionGenotype.getWeight() - parent2Connection.get().getWeight());
+      }
+    }
+    return totalDifference / ((double) numMatch);
   }
 
 

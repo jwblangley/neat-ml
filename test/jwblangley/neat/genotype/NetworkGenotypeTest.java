@@ -10,6 +10,8 @@ import org.junit.Test;
 
 public class NetworkGenotypeTest {
 
+  private final static double DELTA = 0.00001;
+
   @Test
   public void copiedObjectsAreDeeplyCopied() {
     // Setup
@@ -248,6 +250,52 @@ public class NetworkGenotypeTest {
         new ConnectionGenotype(input2.getUid(), hidden4.getUid(), 0, 0, true));
 
     assertTrue(network.circularIfConnected(hidden4, output));
+  }
+
+  @Test
+  public void compatibilityDistanceBetweenIdenticalIsZero() {
+    NetworkGenotype network = new NetworkGenotype();
+    NeuronGenotype input = new NeuronGenotype(NeuronLayer.INPUT, 0);
+    network.addNeuron(input);
+    NeuronGenotype hidden1 = new NeuronGenotype(NeuronLayer.HIDDEN, 1);
+    network.addNeuron(hidden1);
+    NeuronGenotype hidden2 = new NeuronGenotype(NeuronLayer.HIDDEN, 2);
+    network.addNeuron(hidden2);
+    NeuronGenotype output = new NeuronGenotype(NeuronLayer.OUTPUT, 3);
+    network.addNeuron(output);
+
+    network.addConnection(
+        new ConnectionGenotype(input.getUid(), hidden1.getUid(), 0, 0, true));
+    network.addConnection(
+        new ConnectionGenotype(hidden1.getUid(), hidden2.getUid(), 1, 0, true));
+    network.addConnection(
+        new ConnectionGenotype(hidden2.getUid(), output.getUid(), 2, 0, true));
+
+    NetworkGenotype copiedNetwork = new NetworkGenotype(network);
+
+    assertEquals(0, NetworkGenotype.compatibilityDistance(network, copiedNetwork), DELTA);
+  }
+
+  @Test
+  public void compatibilityDistanceIsCorrect() {
+    NetworkGenotype network = new NetworkGenotype();
+    NeuronGenotype input = new NeuronGenotype(NeuronLayer.INPUT, 0);
+    network.addNeuron(input);
+    NeuronGenotype hidden1 = new NeuronGenotype(NeuronLayer.HIDDEN, 1);
+    network.addNeuron(hidden1);
+    NeuronGenotype output = new NeuronGenotype(NeuronLayer.OUTPUT, 3);
+    network.addNeuron(output);
+
+    network.addConnection(
+        new ConnectionGenotype(input.getUid(), hidden1.getUid(), 0, 0, true));
+    network.addConnection(
+        new ConnectionGenotype(hidden1.getUid(), output.getUid(), 1, 0, true));
+
+    NetworkGenotype newNetwork = new NetworkGenotype(network);
+    newNetwork.addConnection(
+        new ConnectionGenotype(input.getUid(), output.getUid(), 2, 0, true));
+
+    assertEquals(NetworkGenotype.DIST_C1 / 3, NetworkGenotype.compatibilityDistance(network, newNetwork), DELTA);
   }
 
 }
