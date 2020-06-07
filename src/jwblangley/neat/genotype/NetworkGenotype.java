@@ -18,18 +18,18 @@ import jwblangley.neat.util.ImmutableHomogeneousPair;
 public class NetworkGenotype {
 
   /**
-   * Constant for compatibility distance calculation weighting the relative
-   * importance of excess genes
+   * Constant for compatibility distance calculation weighting the relative importance of excess
+   * genes
    */
   public static final double DIST_C1 = 1d;
   /**
-   * Constant for compatibility distance calculation weighting the relative
-   * importance of disjoint genes
+   * Constant for compatibility distance calculation weighting the relative importance of disjoint
+   * genes
    */
   public static final double DIST_C2 = 1d;
   /**
-   * Constant for compatibility distance calculation weighting the relative
-   * importance of the average difference in weights of matching genes
+   * Constant for compatibility distance calculation weighting the relative importance of the
+   * average difference in weights of matching genes
    */
   public static final double DIST_C3 = 0.4d;
 

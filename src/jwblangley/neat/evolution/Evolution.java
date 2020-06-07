@@ -19,17 +19,17 @@ public class Evolution {
   private final int populationSize;
   private final InnovationGenerator innovationGenerator;
 
-  private List<Species> allSpecies;
+  private final List<Species> allSpecies;
   private List<NetworkGenotype> currentGeneration;
 
   private double highestFitness;
   private NetworkGenotype fittestGenotype;
 
-  private Map<NetworkGenotype, Species> genotypeSpeciesMap;
+  private final Map<NetworkGenotype, Species> genotypeSpeciesMap;
   /**
    * Map from network genotypes to their adjusted fitness
    */
-  private Map<NetworkGenotype, Double> genotypeFitnessMap;
+  private final Map<NetworkGenotype, Double> genotypeFitnessMap;
 
 
   public Evolution(int populationSize, NetworkGenotype startingGenotype,
@@ -73,11 +73,8 @@ public class Evolution {
   }
 
   /**
-   * Sort a generation into species,
-   * evaluate each member of the generation,
-   * kill off weaker members,
-   * generate child members from surviving members
-   * repopulate generation
+   * Sort a generation into species, evaluate each member of the generation, kill off weaker
+   * members, generate child members from surviving members repopulate generation
    *
    * @param random seeded Random object
    */

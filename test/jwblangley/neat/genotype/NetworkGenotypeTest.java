@@ -295,7 +295,8 @@ public class NetworkGenotypeTest {
     newNetwork.addConnection(
         new ConnectionGenotype(input.getUid(), output.getUid(), 2, 0, true));
 
-    assertEquals(NetworkGenotype.DIST_C1 / 3, NetworkGenotype.compatibilityDistance(network, newNetwork), DELTA);
+    assertEquals(NetworkGenotype.DIST_C1 / 3,
+        NetworkGenotype.compatibilityDistance(network, newNetwork), DELTA);
   }
 
 }

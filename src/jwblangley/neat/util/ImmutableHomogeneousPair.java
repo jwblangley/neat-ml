@@ -1,6 +1,7 @@
 package jwblangley.neat.util;
 
-public class ImmutableHomogeneousPair<T>  {
+public class ImmutableHomogeneousPair<T> {
+
   private final T first;
   private final T second;
 

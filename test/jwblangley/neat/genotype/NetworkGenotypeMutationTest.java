@@ -267,7 +267,8 @@ public class NetworkGenotypeMutationTest {
 
     final double origWeight = 0.5;
 
-    ConnectionGenotype connection = new ConnectionGenotype(0, 1, innovation.next(), origWeight, true);
+    ConnectionGenotype connection = new ConnectionGenotype(0, 1, innovation.next(), origWeight,
+        true);
 
     network.addConnection(connection);
 
@@ -293,9 +294,12 @@ public class NetworkGenotypeMutationTest {
 
     final double origWeight = 0.5;
 
-    ConnectionGenotype connectionA = new ConnectionGenotype(0, 1, innovation.next(), origWeight, true);
-    ConnectionGenotype connectionB = new ConnectionGenotype(1, 2, innovation.next(), origWeight, true);
-    ConnectionGenotype connectionC = new ConnectionGenotype(0, 2, innovation.next(), origWeight, true);
+    ConnectionGenotype connectionA
+        = new ConnectionGenotype(0, 1, innovation.next(), origWeight,true);
+    ConnectionGenotype connectionB
+        = new ConnectionGenotype(1, 2, innovation.next(), origWeight, true);
+    ConnectionGenotype connectionC
+        = new ConnectionGenotype(0, 2, innovation.next(), origWeight,true);
 
     network.addConnection(connectionA);
     network.addConnection(connectionB);

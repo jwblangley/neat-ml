@@ -19,8 +19,8 @@ public class ConnectionGenotype {
    *
    * @param neuronFrom       uid of the neuron the connection is from
    * @param neuronTo         uid of the neuron the connection is to
-   * @param innovationMarker identifier for the creation of this connection
-   *                         as a result of an innovation
+   * @param innovationMarker identifier for the creation of this connection as a result of an
+   *                         innovation
    * @param weight           initial weight for this connection
    * @param enabled          whether the new connection is initially enabled
    */
@@ -54,7 +54,6 @@ public class ConnectionGenotype {
   }
 
   /**
-   *
    * @return uid of the neuron the connection is from
    */
   public int getNeuronFrom() {
@@ -62,7 +61,6 @@ public class ConnectionGenotype {
   }
 
   /**
-   *
    * @return uid of the neuron the connection is to
    */
   public int getNeuronTo() {

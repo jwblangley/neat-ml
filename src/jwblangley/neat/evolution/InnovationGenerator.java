@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Generator for innovation markers
  */
 public class InnovationGenerator {
+
   private final AtomicInteger atomicInteger;
 
   /**
@@ -16,7 +17,6 @@ public class InnovationGenerator {
   }
 
   /**
-   *
    * @param initial
    */
   public InnovationGenerator(int initial) {
