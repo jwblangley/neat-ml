@@ -2,7 +2,10 @@ package jwblangley.neat.genotype;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Optional;
 import org.junit.Test;
 
 public class NetworkGenotypeTest {
@@ -49,6 +52,38 @@ public class NetworkGenotypeTest {
 
     assertNotSame(copiedToNeuron, toNeuron);
     assertEquals(copiedToNeuron, toNeuron);
+  }
+
+  @Test
+  public void getConnectionReturnsEmptyWithNoConnections() {
+    NetworkGenotype network = new NetworkGenotype();
+
+    assertEquals(Optional.empty(), network.getConnectionByInnovationMarker(1));
+  }
+
+  @Test
+  public void getConnectionReturnsEmptyWithWrongConnections() {
+    NetworkGenotype network = new NetworkGenotype();
+    network.addConnection(new ConnectionGenotype(1, 2, 1, 0, true));
+    network.addConnection(new ConnectionGenotype(1, 2, 2, 0, true));
+
+    assertEquals(Optional.empty(), network.getConnectionByInnovationMarker(3));
+  }
+
+  @Test
+  public void getConnectionReturnsWithCorrectConnections() {
+    NetworkGenotype network = new NetworkGenotype();
+
+    ConnectionGenotype target = new ConnectionGenotype(1, 2, 1, 0, true);
+    network.addConnection(target);
+    ConnectionGenotype falseTarget = new ConnectionGenotype(1, 2, 2, 0, true);
+    network.addConnection(falseTarget);
+
+    Optional<ConnectionGenotype> result
+        = network.getConnectionByInnovationMarker(target.getInnovationMarker());
+
+    assertTrue(result.isPresent());
+    assertSame(target, result.get());
   }
 
 }

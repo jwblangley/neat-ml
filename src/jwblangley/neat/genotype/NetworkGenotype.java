@@ -2,6 +2,7 @@ package jwblangley.neat.genotype;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -55,5 +56,21 @@ public class NetworkGenotype {
 
   public void addConnection(ConnectionGenotype connection) {
     connections.add(connection);
+  }
+
+  /**
+   * Gets the connection in this network that has the provided innovation marker if it exists
+   * @param innovationMarker given innovation marker
+   * @return Optional-wrapped ConnectionGenotype with the given innovation marker if it exists,
+   * Optional.empty() otherwise
+   */
+  public Optional<ConnectionGenotype> getConnectionByInnovationMarker(int innovationMarker) {
+    assert connections.stream()
+        .filter(con -> con.getInnovationMarker() == innovationMarker).count() <= 1
+        : "There should be a maximum of 1 connection per innovation marker";
+
+    return connections.stream()
+        .filter(con -> con.getInnovationMarker() == innovationMarker)
+        .findAny();
   }
 }
