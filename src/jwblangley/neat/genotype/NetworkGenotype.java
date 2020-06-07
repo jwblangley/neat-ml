@@ -117,7 +117,8 @@ public class NetworkGenotype {
       Random random, InnovationGenerator innovation, int maxAttempts) {
 
     int attempts = 0;
-    attempt: while (attempts < maxAttempts) {
+    attempt:
+    while (attempts < maxAttempts) {
       attempts++;
 
       // Pick two random neurons
@@ -218,6 +219,56 @@ public class NetworkGenotype {
         connection.setWeight(generateRandomWeight(random) * 2);
       }
     }
+  }
+
+  /**
+   * Genes between the two parents are either matching (same innovation number), disjoint (doesn't
+   * have innovation number) or excess (outside the range of the the other parent's genes). When
+   * creating the child, matching genes (connections) are chosen at random from either parent. All
+   * excess or disjoint genes are always taken from the more fit parent only.
+   *
+   * @param fittestParent the 'fitter' parent
+   * @param secondParent  the second parent
+   * @param random        seeded Random object
+   * @return resulting genotype
+   */
+  public static NetworkGenotype crossover(NetworkGenotype fittestParent,
+      NetworkGenotype secondParent, Random random) {
+
+    NetworkGenotype childNetwork = new NetworkGenotype();
+
+    /*
+    Since we take matching from either and excess or disjoint always from fittest,
+    we can take a copy of all the fittest parent's neurons to stay connected
+     */
+
+    // Add all neurons from fittest parent to child
+    for (NeuronGenotype parentNeuron : fittestParent.getNeurons()) {
+      childNetwork.addNeuron(new NeuronGenotype(parentNeuron));
+    }
+
+    // Add genes (connections) from parents
+    for (ConnectionGenotype fittestParentsGene : fittestParent.getConnections()) {
+      // Get matching gene (if it exists) from second parent
+      Optional<ConnectionGenotype> secondParentsGene
+          = secondParent.getConnectionByInnovationMarker(fittestParentsGene.getInnovationMarker());
+
+      ConnectionGenotype toInherit;
+      if (secondParentsGene.isPresent()) {
+        // Matching genes
+        // Inherit randomly from either parent
+        toInherit = random.nextBoolean()
+            ? fittestParentsGene : secondParentsGene.get();
+      } else {
+        // Disjoint or excess gene
+        // Always copy from fitter parent
+        toInherit = fittestParentsGene;
+      }
+      ConnectionGenotype childGene = new ConnectionGenotype(toInherit);
+      childNetwork.addConnection(childGene);
+    }
+
+    return childNetwork;
   }
 
 
