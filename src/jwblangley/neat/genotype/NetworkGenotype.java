@@ -80,7 +80,7 @@ public class NetworkGenotype {
    * @param random seeded Random object
    * @return a random NeuronGenotype from those in this network
    */
-  private NeuronGenotype randomNeuron(Random random) {
+  private NeuronGenotype getRandomNeuron(Random random) {
     return neurons.get(random.nextInt(neurons.size()));
   }
 
@@ -89,7 +89,16 @@ public class NetworkGenotype {
    * @param random seeded Random object
    * @return a random ConnectionGenotype from those in this network
    */
-  private ConnectionGenotype randomConnection(Random random) {
+  private ConnectionGenotype getRandomConnection(Random random) {
     return connections.get(random.nextInt(connections.size()));
+  }
+
+  /**
+   *
+   * @param random seeded Random object
+   * @return random double between -1 and 1
+   */
+  private static double generateRandomWeight(Random random) {
+    return (random.nextDouble() * 2d) - 1d;
   }
 }
