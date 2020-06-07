@@ -117,7 +117,7 @@ public class NetworkGenotype {
       Random random, InnovationGenerator innovation, int maxAttempts) {
 
     int attempts = 0;
-    while (attempts < maxAttempts) {
+    attempt: while (attempts < maxAttempts) {
       attempts++;
 
       // Pick two random neurons
@@ -150,9 +150,16 @@ public class NetworkGenotype {
           true
       );
 
-      // Prevent overriding connections
-      if (connections.contains(connection)) {
-        continue;
+      // If connection already exists, re-enable if disabled, prevent overriding otherwise
+      for (ConnectionGenotype existingConnection : connections) {
+        if (existingConnection.equals(connection)) {
+          if (!existingConnection.isEnabled()) {
+            existingConnection.enable();
+            return true;
+          } else {
+            continue attempt;
+          }
+        }
       }
 
       return connections.add(connection);
