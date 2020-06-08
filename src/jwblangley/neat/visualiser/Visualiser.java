@@ -2,23 +2,36 @@ package jwblangley.neat.visualiser;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
+import javax.imageio.ImageIO;
 import jwblangley.neat.genotype.NetworkGenotype;
 import jwblangley.neat.genotype.NeuronGenotype;
 import jwblangley.neat.genotype.NeuronLayer;
 
 public class Visualiser {
 
-  private static final int SIZE = 1024;
-  private static Color NEURON_COLOUR = Color.BLACK;
+  private static final int IMAGE_SIZE = 1024;
+  private static final int NEURON_SIZE = 50;
+  private static final Color INPUT_NEURON_COLOUR = Color.BLACK;
+  private static final Color HIDDEN_NEURON_COLOUR = Color.BLACK;
+  private static final Color OUTPUT_NEURON_COLOUR = Color.BLACK;
+  private static final Color NEGATIVE_CONNECTION_COLOUR = Color.BLACK;
+  private static final Color POSITIVE_CONNECTION_COLOUR = Color.BLACK;
 
   public static BufferedImage visualiseNetwork(NetworkGenotype network) {
-    final BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
+    final BufferedImage image = new BufferedImage(IMAGE_SIZE, IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB);
     final Graphics graphics = image.getGraphics();
+
+    final Map<Integer, Point> neuronPositions = new HashMap<>();
 
     final Random seededRandom = new Random(100);
     /*
@@ -42,7 +55,36 @@ public class Visualiser {
         .sorted(Comparator.comparingDouble(NeuronGenotype::getUid))
         .collect(Collectors.toList());
 
+    graphics.setColor(INPUT_NEURON_COLOUR);
+    // Draw input neurons
+    for (int i = 0; i < inputNeurons.size(); i++) {
+      NeuronGenotype neuron = inputNeurons.get(i);
+      int x = 2 * NEURON_SIZE;
+
+      int y = inputNeurons.size() == 1 ? IMAGE_SIZE / 2 : 2 * NEURON_SIZE + (IMAGE_SIZE - 4 * NEURON_SIZE) / (inputNeurons.size() - 1) * i;
+      neuronPositions.put(neuron.getUid(), new Point(x, y));
+      graphics.fillOval(x - NEURON_SIZE / 2, y - NEURON_SIZE / 2, NEURON_SIZE, NEURON_SIZE);
+    }
+
+    graphics.setColor(OUTPUT_NEURON_COLOUR);
+    // Draw output neurons
+    for (int i = 0; i < outputNeurons.size(); i++) {
+      NeuronGenotype neuron = outputNeurons.get(i);
+      int x = IMAGE_SIZE - 2 * NEURON_SIZE;
+      int y = outputNeurons.size() == 1 ? IMAGE_SIZE / 2 : 2 * NEURON_SIZE + (IMAGE_SIZE - 4 * NEURON_SIZE) / (outputNeurons.size() - 1) * i;
+      neuronPositions.put(neuron.getUid(), new Point(x, y));
+      graphics.fillOval(x - NEURON_SIZE / 2, y - NEURON_SIZE / 2, NEURON_SIZE, NEURON_SIZE);
+    }
+
     return image;
+  }
+
+  public static void saveImageToFile(BufferedImage image, File file) {
+    try {
+      ImageIO.write(image, "PNG", file);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
 }
