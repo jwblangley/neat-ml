@@ -176,12 +176,20 @@ public class Visualiser {
 
   }
 
-  public static void saveImageToFile(BufferedImage image, File file) {
+  public static void saveImageToFile(BufferedImage image, File file, boolean background) {
+    BufferedImage toSave = image;
+    if (background) {
+      BufferedImage bg = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+      bg.getGraphics().setColor(Color.WHITE);
+      bg.getGraphics().fillRect(0, 0, image.getWidth(), image.getHeight());
+      bg.getGraphics().drawImage(image, 0, 0, null);
+      toSave = bg;
+    }
+
     try {
-      ImageIO.write(image, "PNG", file);
+      ImageIO.write(toSave, "PNG", file);
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
-
 }
