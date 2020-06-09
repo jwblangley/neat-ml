@@ -34,6 +34,11 @@ public class Visualiser {
   private static final Color NEGATIVE_CONNECTION_COLOUR = new Color(106, 27, 154);
   private static final Color POSITIVE_CONNECTION_COLOUR = new Color(239, 108, 0);
 
+  /**
+   * Create an image that visualises a network genotype
+   * @param network network to be visualised
+   * @return resulting visual
+   */
   public static BufferedImage visualiseNetwork(NetworkGenotype network) {
     final Random seededRandom = new Random(100);
     /*
@@ -176,6 +181,12 @@ public class Visualiser {
 
   }
 
+  /**
+   * Save an image to disk
+   * @param image image to save
+   * @param file location on disk to save to (no overwrite checks)
+   * @param background whether the background should be opaque (white), transparent otherwise
+   */
   public static void saveImageToFile(BufferedImage image, File file, boolean background) {
     BufferedImage toSave = image;
     if (background) {
