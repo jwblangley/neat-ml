@@ -29,10 +29,10 @@ public class Visualiser {
   private static final int MAX_POSITION_ATTEMPTS = 10;
 
   private static final Color INPUT_NEURON_COLOUR = Color.BLACK;
-  private static final Color HIDDEN_NEURON_COLOUR = Color.BLACK;
+  private static final Color HIDDEN_NEURON_COLOUR = Color.GRAY;
   private static final Color OUTPUT_NEURON_COLOUR = Color.BLACK;
-  private static final Color NEGATIVE_CONNECTION_COLOUR = Color.BLACK;
-  private static final Color POSITIVE_CONNECTION_COLOUR = Color.BLACK;
+  private static final Color NEGATIVE_CONNECTION_COLOUR = new Color(106, 27, 154);
+  private static final Color POSITIVE_CONNECTION_COLOUR = new Color(239, 108, 0);
 
   public static BufferedImage visualiseNetwork(NetworkGenotype network) {
     final Random seededRandom = new Random(100);
