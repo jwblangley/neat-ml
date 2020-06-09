@@ -5,6 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import jwblangley.neat.genotype.NetworkGenotype;
 
 public class Evolution {
@@ -16,6 +21,7 @@ public class Evolution {
   public static final int ADD_CONNECTION_ATTEMPTS = 10;
 
   private final Evaluator evaluator;
+  private final int numThreads;
   private final int populationSize;
   private final InnovationGenerator innovationGenerator;
 
@@ -32,12 +38,22 @@ public class Evolution {
   private final Map<NetworkGenotype, Double> genotypeFitnessMap;
 
 
+  /**
+   * Construct a new Evolution object
+   *
+   * @param populationSize      size of the population for each generation
+   * @param startingGenotype    genotype for the inital population to be filled with
+   * @param innovationGenerator Generator for innovation markers
+   * @param evaluator           Function to simulate and evaluate a single genotype
+   * @param numThreads          Number of concurrent threads to evaluate the population with
+   */
   public Evolution(int populationSize, NetworkGenotype startingGenotype,
-      InnovationGenerator innovationGenerator, Evaluator evaluator) {
+      InnovationGenerator innovationGenerator, int numThreads, Evaluator evaluator) {
 
     this.populationSize = populationSize;
     this.innovationGenerator = innovationGenerator;
     this.evaluator = evaluator;
+    this.numThreads = numThreads;
 
     // Initialise population
     currentGeneration = new ArrayList<>(populationSize);
@@ -107,22 +123,39 @@ public class Evolution {
     allSpecies.removeIf(s -> s.getMembers().isEmpty());
 
     // Evaluate each genotype and assign its fitness
+    final ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
+    final Lock criticalLock = new ReentrantLock();
     for (NetworkGenotype genotype : currentGeneration) {
-      Species genotypesSpecies = genotypeSpeciesMap.get(genotype);
+      threadPool.execute(() -> {
+        // Read-only
+        Species genotypesSpecies = genotypeSpeciesMap.get(genotype);
 
-      // Simulate the genotype and evaluate fitness
-      final double fitness = evaluator.evaluate(genotype);
+        // Simulate the genotype and evaluate fitness
+        final double fitness = evaluator.evaluate(genotype);
 
-      // Adjust fitness by species size to prevent elitism
-      final double adjustedFitness = fitness / ((double) genotypesSpecies.size());
+        // Adjust fitness by species size to prevent elitism. genotypeSpecies.size() is read-only
+        final double adjustedFitness = fitness / ((double) genotypesSpecies.size());
 
-      genotypeFitnessMap.put(genotype, adjustedFitness);
+        // Critical section
+        criticalLock.lock();
+        genotypeFitnessMap.put(genotype, adjustedFitness);
 
-      // Store highest fitness
-      if (fitness > highestFitness) {
-        highestFitness = fitness;
-        fittestGenotype = genotype;
-      }
+        // Store highest fitness
+        if (fitness > highestFitness) {
+          highestFitness = fitness;
+          fittestGenotype = genotype;
+        }
+        criticalLock.unlock();
+      });
+    }
+
+    // Accept no more tasks
+    threadPool.shutdown();
+    // Wait until thread pool execution is finished
+    try {
+      threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+    } catch (InterruptedException e) {
+      System.err.println("Waiting for thread pool execution to finish, outlasted the universe");
     }
 
     // Sort all species
