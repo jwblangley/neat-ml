@@ -1,9 +1,7 @@
 package jwblangley.neat.visualiser;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -24,8 +22,9 @@ public class Visualiser {
 
   private static final int INITIAL_IMAGE_SIZE = 1024;
   private static final int NEURON_SIZE = 50;
-  private static final int MAX_CONNECTION_SIZE = 15;
-  private static final int MIN_CONNECTION_SIZE = 3;
+  private static final int MAX_CONNECTION_SIZE = 30;
+  private static final int MIN_CONNECTION_SIZE = 15;
+  private static final int TAPERING_RATIO = 5;
   private static final int MAX_POSITION_ATTEMPTS = 10;
 
   private static final Color INPUT_NEURON_COLOUR = Color.BLACK;
@@ -36,6 +35,7 @@ public class Visualiser {
 
   /**
    * Create an image that visualises a network genotype
+   *
    * @param network network to be visualised
    * @return resulting visual
    */
@@ -71,7 +71,8 @@ public class Visualiser {
       BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
       Graphics graphics = image.getGraphics();
 
-      BufferedImage neuronLayer = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
+      BufferedImage neuronLayer = new BufferedImage(imageSize, imageSize,
+          BufferedImage.TYPE_INT_ARGB);
       Graphics neuronGraphics = neuronLayer.getGraphics();
 
       final Map<Integer, Point> neuronPositions = new HashMap<>();
@@ -124,7 +125,8 @@ public class Visualiser {
           // No clash with any other existing neuron
           fitSucessful = true;
           neuronPositions.put(neuron.getUid(), new Point(x, y));
-          neuronGraphics.fillOval(x - NEURON_SIZE / 2, y - NEURON_SIZE / 2, NEURON_SIZE, NEURON_SIZE);
+          neuronGraphics
+              .fillOval(x - NEURON_SIZE / 2, y - NEURON_SIZE / 2, NEURON_SIZE, NEURON_SIZE);
           break;
         }
         if (!fitSucessful) {
@@ -162,7 +164,7 @@ public class Visualiser {
         final double lineWidth = MIN_CONNECTION_SIZE
             + (weight - minWeight) / (maxWeight - minWeight)
             * (MAX_CONNECTION_SIZE - MIN_CONNECTION_SIZE);
-        ((Graphics2D) graphics).setStroke(new BasicStroke((float) lineWidth));
+
         graphics.setColor(weight < 0 ? NEGATIVE_CONNECTION_COLOUR : POSITIVE_CONNECTION_COLOUR);
 
         int fromUid = connection.getNeuronFrom();
@@ -170,7 +172,31 @@ public class Visualiser {
         Point from = neuronPositions.get(fromUid);
         Point to = neuronPositions.get(toUid);
 
-        graphics.drawLine(from.x, from.y, to.x, to.y);
+        final double dx = to.x - from.x;
+        final double dy = to.y - from.y;
+        final double dxdy = dx / dy;
+        final double gradPerp = -1 / dxdy;
+
+        // For every 1 unit in x, we go gradPerp in y. Therefore direction vector is (1, gradPerp)
+        // Normalise direction vector;
+        final double normalisingCont = Math.sqrt(1 + Math.pow(gradPerp, 2));
+        final double vecX = 1 / normalisingCont;
+        final double vecY = gradPerp / normalisingCont;
+
+        Point fromTaperPos = new Point((int) (from.x + vecX * lineWidth / 2),
+            (int) (from.y + vecY * lineWidth / 2));
+        Point fromTaperNeg = new Point((int) (from.x - vecX * lineWidth / 2),
+            (int) (from.y - vecY * lineWidth / 2));
+
+        Point toTaperPos = new Point((int) (to.x + vecX * lineWidth / (2 * TAPERING_RATIO)),
+            (int) (to.y + vecY * lineWidth / (2 * TAPERING_RATIO)));
+        Point toTaperNeg = new Point((int) (to.x - vecX * lineWidth / (2 * TAPERING_RATIO)),
+            (int) (to.y - vecY * lineWidth / (2 * TAPERING_RATIO)));
+
+        graphics.fillPolygon(
+            new int[]{fromTaperPos.x, fromTaperNeg.x, toTaperNeg.x, toTaperPos.x},
+            new int[]{fromTaperPos.y, fromTaperNeg.y, toTaperNeg.y, toTaperPos.y},
+            4);
       }
 
       // Draw neuron layer on after connections so they appear on top
@@ -183,8 +209,9 @@ public class Visualiser {
 
   /**
    * Save an image to disk
-   * @param image image to save
-   * @param file location on disk to save to (no overwrite checks)
+   *
+   * @param image      image to save
+   * @param file       location on disk to save to (no overwrite checks)
    * @param background whether the background should be opaque (white), transparent otherwise
    */
   public static void saveImageToFile(BufferedImage image, File file, boolean background) {
