@@ -2,11 +2,13 @@ package jwblangley.neat.evolution;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.util.Random;
 import jwblangley.neat.genotype.ConnectionGenotype;
 import jwblangley.neat.genotype.NetworkGenotype;
 import jwblangley.neat.genotype.NeuronGenotype;
 import jwblangley.neat.genotype.NeuronLayer;
+import jwblangley.neat.visualiser.Visualiser;
 import org.junit.Test;
 
 public class EvolutionTest {
@@ -24,12 +26,15 @@ public class EvolutionTest {
 
     // Example starting network
     NetworkGenotype network = new NetworkGenotype();
-    network.addNeuron(new NeuronGenotype(NeuronLayer.INPUT));
-    network.addNeuron(new NeuronGenotype(NeuronLayer.INPUT));
-    network.addNeuron(new NeuronGenotype(NeuronLayer.OUTPUT));
+    NeuronGenotype input1 = new NeuronGenotype(NeuronLayer.INPUT);
+    network.addNeuron(input1);
+    NeuronGenotype input2 = new NeuronGenotype(NeuronLayer.INPUT);
+    network.addNeuron(input2);
+    NeuronGenotype output = new NeuronGenotype(NeuronLayer.OUTPUT);
+    network.addNeuron(output);
 
-    network.addConnection(new ConnectionGenotype(1, 3, innovationCounter.next(), 0.5, true));
-    network.addConnection(new ConnectionGenotype(2, 3, innovationCounter.next(), 0.5, true));
+    network.addConnection(new ConnectionGenotype(input1.getUid(), output.getUid(), innovationCounter.next(), 0.5, true));
+    network.addConnection(new ConnectionGenotype(input2.getUid(), output.getUid(), innovationCounter.next(), 0.5, true));
 
     Evolution evolution = new Evolution(populationSize, network, innovationCounter, geno -> {
       double weightSum = 0;
