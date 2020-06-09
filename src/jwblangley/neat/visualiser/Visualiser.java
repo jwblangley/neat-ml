@@ -1,7 +1,9 @@
 package jwblangley.neat.visualiser;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -13,6 +15,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
+import jwblangley.neat.genotype.ConnectionGenotype;
 import jwblangley.neat.genotype.NetworkGenotype;
 import jwblangley.neat.genotype.NeuronGenotype;
 import jwblangley.neat.genotype.NeuronLayer;
@@ -21,6 +24,8 @@ public class Visualiser {
 
   private static final int INITIAL_IMAGE_SIZE = 1024;
   private static final int NEURON_SIZE = 50;
+  private static final int MAX_CONNECTION_SIZE = 15;
+  private static final int MIN_CONNECTION_SIZE = 3;
   private static final int MAX_POSITION_ATTEMPTS = 10;
 
   private static final Color INPUT_NEURON_COLOUR = Color.BLACK;
@@ -54,7 +59,8 @@ public class Visualiser {
     // Try to fit all outputs, double image size until fit
     int exponent = -1;
     BufferedImage image;
-    allFitAttempt: while (true) {
+    allFitAttempt:
+    while (true) {
       exponent++;
       final int imageSize = (int) Math.pow(2, exponent) * INITIAL_IMAGE_SIZE;
 
@@ -75,7 +81,8 @@ public class Visualiser {
         NeuronGenotype neuron = inputNeurons.get(i);
         int x = 2 * NEURON_SIZE;
 
-        int y = inputNeurons.size() == 1 ? imageSize / 2 : 2 * NEURON_SIZE + (imageSize - 4 * NEURON_SIZE) / (inputNeurons.size() - 1) * i;
+        int y = inputNeurons.size() == 1 ? imageSize / 2
+            : 2 * NEURON_SIZE + (imageSize - 4 * NEURON_SIZE) / (inputNeurons.size() - 1) * i;
         neuronPositions.put(neuron.getUid(), new Point(x, y));
         graphics.fillOval(x - NEURON_SIZE / 2, y - NEURON_SIZE / 2, NEURON_SIZE, NEURON_SIZE);
       }
@@ -85,15 +92,18 @@ public class Visualiser {
       for (int i = 0; i < outputNeurons.size(); i++) {
         NeuronGenotype neuron = outputNeurons.get(i);
         int x = imageSize - 2 * NEURON_SIZE;
-        int y = outputNeurons.size() == 1 ? imageSize / 2 : 2 * NEURON_SIZE + (imageSize - 4 * NEURON_SIZE) / (outputNeurons.size() - 1) * i;
+        int y = outputNeurons.size() == 1 ? imageSize / 2
+            : 2 * NEURON_SIZE + (imageSize - 4 * NEURON_SIZE) / (outputNeurons.size() - 1) * i;
         neuronPositions.put(neuron.getUid(), new Point(x, y));
         graphics.fillOval(x - NEURON_SIZE / 2, y - NEURON_SIZE / 2, NEURON_SIZE, NEURON_SIZE);
       }
 
       // Draw hidden neurons by placing them randomly until they don't overlap (with padding)
+      graphics.setColor(HIDDEN_NEURON_COLOUR);
       for (NeuronGenotype neuron : hiddenNeurons) {
         boolean fitSucessful = false;
-        neuronFitAttempt: for (int i = 0; i < MAX_POSITION_ATTEMPTS; i++) {
+        neuronFitAttempt:
+        for (int i = 0; i < MAX_POSITION_ATTEMPTS; i++) {
 
           final int x = 8 * NEURON_SIZE + seededRandom.nextInt(imageSize - 16 * NEURON_SIZE);
           final int y = 4 * NEURON_SIZE + seededRandom.nextInt(imageSize - 8 * NEURON_SIZE);
@@ -111,12 +121,53 @@ public class Visualiser {
           break;
         }
         if (!fitSucessful) {
-          System.out.println("Did not all fit");
           continue allFitAttempt;
         }
       }
 
       // All neurons fit and placed
+
+      // Draw connections
+
+      // Get connection min and max weight
+      double minWeight = Double.POSITIVE_INFINITY;
+      double maxWeight = Double.NEGATIVE_INFINITY;
+      for (ConnectionGenotype connection : network.getConnections()) {
+        if (!connection.isEnabled()) {
+          continue;
+        }
+
+        final double weight = connection.getWeight();
+        if (weight < minWeight) {
+          minWeight = weight;
+        }
+        if (weight > maxWeight) {
+          maxWeight = weight;
+        }
+      }
+
+      // Draw connections with linearly interpolated widths
+      for (ConnectionGenotype connection : network.getConnections()) {
+        if (!connection.isEnabled()) {
+          continue;
+        }
+
+        final double weight = connection.getWeight();
+        final double lineWidth = MIN_CONNECTION_SIZE
+            + (weight - minWeight) / (maxWeight - minWeight)
+            * (MAX_CONNECTION_SIZE - MIN_CONNECTION_SIZE);
+        System.out.println("lineWidth = " + lineWidth);
+        ((Graphics2D) graphics).setStroke(new BasicStroke((float) lineWidth));
+        graphics.setColor(weight < 0 ? NEGATIVE_CONNECTION_COLOUR : POSITIVE_CONNECTION_COLOUR);
+
+        int fromUid = connection.getNeuronFrom();
+        int toUid = connection.getNeuronTo();
+        Point from = neuronPositions.get(fromUid);
+        Point to = neuronPositions.get(toUid);
+
+        graphics.drawLine(from.x, from.y, to.x, to.y);
+      }
+
       return image;
     }
 
