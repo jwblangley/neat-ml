@@ -58,14 +58,16 @@ public class Visualiser {
 
     // Try to fit all outputs, double image size until fit
     int exponent = -1;
-    BufferedImage image;
     allFitAttempt:
     while (true) {
       exponent++;
       final int imageSize = (int) Math.pow(2, exponent) * INITIAL_IMAGE_SIZE;
 
-      image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
+      BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
       Graphics graphics = image.getGraphics();
+
+      BufferedImage neuronLayer = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_ARGB);
+      Graphics neuronGraphics = neuronLayer.getGraphics();
 
       final Map<Integer, Point> neuronPositions = new HashMap<>();
 
@@ -75,7 +77,7 @@ public class Visualiser {
         continue;
       }
 
-      graphics.setColor(INPUT_NEURON_COLOUR);
+      neuronGraphics.setColor(INPUT_NEURON_COLOUR);
       // Draw input neurons
       for (int i = 0; i < inputNeurons.size(); i++) {
         NeuronGenotype neuron = inputNeurons.get(i);
@@ -84,10 +86,10 @@ public class Visualiser {
         int y = inputNeurons.size() == 1 ? imageSize / 2
             : 2 * NEURON_SIZE + (imageSize - 4 * NEURON_SIZE) / (inputNeurons.size() - 1) * i;
         neuronPositions.put(neuron.getUid(), new Point(x, y));
-        graphics.fillOval(x - NEURON_SIZE / 2, y - NEURON_SIZE / 2, NEURON_SIZE, NEURON_SIZE);
+        neuronGraphics.fillOval(x - NEURON_SIZE / 2, y - NEURON_SIZE / 2, NEURON_SIZE, NEURON_SIZE);
       }
 
-      graphics.setColor(OUTPUT_NEURON_COLOUR);
+      neuronGraphics.setColor(OUTPUT_NEURON_COLOUR);
       // Draw output neurons
       for (int i = 0; i < outputNeurons.size(); i++) {
         NeuronGenotype neuron = outputNeurons.get(i);
@@ -95,11 +97,11 @@ public class Visualiser {
         int y = outputNeurons.size() == 1 ? imageSize / 2
             : 2 * NEURON_SIZE + (imageSize - 4 * NEURON_SIZE) / (outputNeurons.size() - 1) * i;
         neuronPositions.put(neuron.getUid(), new Point(x, y));
-        graphics.fillOval(x - NEURON_SIZE / 2, y - NEURON_SIZE / 2, NEURON_SIZE, NEURON_SIZE);
+        neuronGraphics.fillOval(x - NEURON_SIZE / 2, y - NEURON_SIZE / 2, NEURON_SIZE, NEURON_SIZE);
       }
 
       // Draw hidden neurons by placing them randomly until they don't overlap (with padding)
-      graphics.setColor(HIDDEN_NEURON_COLOUR);
+      neuronGraphics.setColor(HIDDEN_NEURON_COLOUR);
       for (NeuronGenotype neuron : hiddenNeurons) {
         boolean fitSucessful = false;
         neuronFitAttempt:
@@ -117,7 +119,7 @@ public class Visualiser {
           // No clash with any other existing neuron
           fitSucessful = true;
           neuronPositions.put(neuron.getUid(), new Point(x, y));
-          graphics.fillOval(x - NEURON_SIZE / 2, y - NEURON_SIZE / 2, NEURON_SIZE, NEURON_SIZE);
+          neuronGraphics.fillOval(x - NEURON_SIZE / 2, y - NEURON_SIZE / 2, NEURON_SIZE, NEURON_SIZE);
           break;
         }
         if (!fitSucessful) {
@@ -128,7 +130,6 @@ public class Visualiser {
       // All neurons fit and placed
 
       // Draw connections
-
       // Get connection min and max weight
       double minWeight = Double.POSITIVE_INFINITY;
       double maxWeight = Double.NEGATIVE_INFINITY;
@@ -156,7 +157,6 @@ public class Visualiser {
         final double lineWidth = MIN_CONNECTION_SIZE
             + (weight - minWeight) / (maxWeight - minWeight)
             * (MAX_CONNECTION_SIZE - MIN_CONNECTION_SIZE);
-        System.out.println("lineWidth = " + lineWidth);
         ((Graphics2D) graphics).setStroke(new BasicStroke((float) lineWidth));
         graphics.setColor(weight < 0 ? NEGATIVE_CONNECTION_COLOUR : POSITIVE_CONNECTION_COLOUR);
 
@@ -167,6 +167,9 @@ public class Visualiser {
 
         graphics.drawLine(from.x, from.y, to.x, to.y);
       }
+
+      // Draw neuron layer on after connections so they appear on top
+      graphics.drawImage(neuronLayer, 0, 0, null);
 
       return image;
     }
