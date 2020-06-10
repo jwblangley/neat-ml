@@ -16,26 +16,14 @@ public class Neuron {
 
   private double output;
 
-  private Neuron(Activation activation) {
+  /**
+   * Construct a new Neuron
+   * @param activation activation function
+   */
+  public Neuron(Function<Double, Double> activation) {
     this.activation = activation;
     this.inputs = new ArrayList<>();
     this.inputWeightMap = new HashMap<>();
-  }
-
-  /**
-   * Create a new neuron with ReLu activation function
-   * @return the neuron
-   */
-  public static Neuron createReLuNeuron() {
-    return new Neuron(Activation.RELU);
-  }
-
-  /**
-   * Create a new neuron with Sigmoid activation function
-   * @return the neuron
-   */
-  public static Neuron createSigmoidNeuron() {
-    return new Neuron(Activation.SIGMOID);
   }
 
   /**
