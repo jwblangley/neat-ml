@@ -16,7 +16,7 @@ public class Neuron {
 
   private double output;
 
-  private Neuron(Function<Double, Double> activation) {
+  private Neuron(Activation activation) {
     this.activation = activation;
     this.inputs = new ArrayList<>();
     this.inputWeightMap = new HashMap<>();
@@ -27,7 +27,7 @@ public class Neuron {
    * @return the neuron
    */
   public static Neuron createReLuNeuron() {
-    return new Neuron(Activation.reLu());
+    return new Neuron(Activation.RELU);
   }
 
   /**
@@ -35,7 +35,7 @@ public class Neuron {
    * @return the neuron
    */
   public static Neuron createSigmoidNeuron() {
-    return new Neuron(Activation.reLu());
+    return new Neuron(Activation.SIGMOID);
   }
 
   /**

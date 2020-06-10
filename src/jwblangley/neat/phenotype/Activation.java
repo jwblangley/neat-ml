@@ -2,13 +2,18 @@ package jwblangley.neat.phenotype;
 
 import java.util.function.Function;
 
-public class Activation {
+public enum Activation implements Function<Double, Double>{
+  RELU(x -> Math.max(0, x)),
+  SIGMOID(x -> Math.exp(x) / (Math.exp(x) + 1));
 
-  public static Function<Double, Double> reLu() {
-    return x -> Math.max(0, x);
+  private final Function<Double, Double> func;
+
+  Activation(Function<Double, Double> func) {
+    this.func = func;
   }
 
-  public static Function<Double, Double> sigmoid() {
-    return x -> Math.exp(x) / (Math.exp(x) + 1);
+  @Override
+  public Double apply(Double input) {
+    return func.apply(input);
   }
 }
