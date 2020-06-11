@@ -8,13 +8,12 @@ import java.util.function.Function;
 
 public class Neuron {
 
-  private final Function<Double, Double> activation;
+  protected final Function<Double, Double> activation;
   private final List<Neuron> inputs;
   private final Map<Neuron, Double> inputWeightMap;
 
-  private boolean outputting;
-
-  private double output;
+  protected boolean outputting;
+  protected double output;
 
   /**
    * Construct a new Neuron
@@ -65,12 +64,18 @@ public class Neuron {
 
 
   /**
-   * If all inputs are outputting, calculate the output, such that it can be acccessed
+   * If all inputs are outputting, calculate the output, such that it can be accessed
    * with getOutput()
    * @return whether the calculation was successful (unsuccessful if an input neuron is
    * not outputting)
    */
   public boolean tryCalculate() {
+    // Skip if calculation has already been carried out
+    if (isOutputting()) {
+      return true;
+    }
+
+    // Fail if some inputs are not outputting
     if (!inputs.stream().allMatch(Neuron::isOutputting)) {
       return false;
     }
@@ -80,6 +85,7 @@ public class Neuron {
     }
 
     output = activation.apply(inputAcc);
+    outputting = true;
     return true;
   }
 }
