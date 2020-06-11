@@ -1,21 +1,32 @@
 package jwblangley.neat.phenotype;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import jwblangley.neat.genotype.ConnectionGenotype;
 import jwblangley.neat.genotype.NetworkGenotype;
 import jwblangley.neat.genotype.NeuronGenotype;
 import jwblangley.neat.genotype.NeuronLayer;
 
+/**
+ * Phenotype for a neural network
+ */
 public class Network {
 
   private final List<Neuron> neurons;
+  private final List<InputNeuron> inputNeurons;
+  private final List<Neuron> outputNeurons;
 
   private Network() {
     this.neurons = new ArrayList<>();
+    this.inputNeurons = new ArrayList<>();
+    this.outputNeurons = new ArrayList<>();
   }
 
   public static Network createRegressionNetworkFromGenotype(NetworkGenotype genotype) {
@@ -33,15 +44,35 @@ public class Network {
 
     Map<Integer, Neuron> uidNeuronMap = new HashMap<>();
 
+    /*
+     Sort neurons first by guid to ensure that input and output neurons
+     are always added in the same order
+     */
+    List<NeuronGenotype> neuronGenotypes = new ArrayList<>(genotype.getNeurons());
+    neuronGenotypes.sort(Comparator.comparingDouble(NeuronGenotype::getUid));
+
     // Add neurons
-    // TODO: manage input neurons
-    for (NeuronGenotype neuronGenotype : genotype.getNeurons()) {
-      Neuron neuron = new Neuron(neuronGenotype.getLayer() == NeuronLayer.OUTPUT
-          ? outputActivation
-          : Activation.RELU);
+    for (NeuronGenotype neuronGenotype : neuronGenotypes) {
+      Neuron neuron;
+
+      if (neuronGenotype.getLayer() == NeuronLayer.INPUT) {
+        neuron = new InputNeuron(Activation.RELU);
+        network.inputNeurons.add((InputNeuron) neuron);
+      } else {
+        neuron = new Neuron(neuronGenotype.getLayer() == NeuronLayer.OUTPUT
+            ? outputActivation
+            : Activation.RELU);
+
+        if (neuronGenotype.getLayer() == NeuronLayer.OUTPUT) {
+          network.outputNeurons.add(neuron);
+        }
+      }
+
+      network.neurons.add(neuron);
       uidNeuronMap.put(neuronGenotype.getUid(), neuron);
     }
 
+    // Add connections
     for (ConnectionGenotype connectionGenotype : genotype.getConnections()) {
       Neuron toNeuron = uidNeuronMap.get(connectionGenotype.getNeuronTo());
 
@@ -50,5 +81,40 @@ public class Network {
     }
 
     return network;
+  }
+
+  public List<Double> calculateOutputs(List<Double> inputs) {
+    if (inputs.size() != inputNeurons.size()) {
+      throw new InputMismatchException(
+          "Number of provided inputs does not match number of input neurons");
+    }
+
+    // Clear any residual stored outputs
+    for (Neuron neuron : neurons) {
+      neuron.clear();
+    }
+
+    // Set inputs
+    for (int i = 0; i < inputs.size(); i++) {
+      inputNeurons.get(i).setInput(inputs.get(i));
+    }
+
+    // Try to calculate each node until eventually the output nodes will be outputting
+    while (!outputNeurons.stream().allMatch(Neuron::isOutputting)) {
+      for (Neuron neuron : neurons) {
+        neuron.tryCalculate();
+      }
+    }
+
+    // Get results
+    List<Double> results = new ArrayList<>(outputNeurons.size());
+    for (Neuron outputNeuron : outputNeurons) {
+      results.add(outputNeuron.getOutput());
+    }
+    return results;
+  }
+
+  public List<Double> calculateOutputs(Double... inputs) {
+    return calculateOutputs(Arrays.asList(inputs));
   }
 }

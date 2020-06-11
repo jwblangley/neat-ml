@@ -2,6 +2,9 @@ package jwblangley.neat.phenotype;
 
 import java.util.function.Function;
 
+/**
+ * Phenotype for an input neuron
+ */
 public class InputNeuron extends Neuron {
 
   private double input;
@@ -44,7 +47,6 @@ public class InputNeuron extends Neuron {
     if (isOutputting()) {
       return true;
     }
-
 
     output = activation.apply(input);
     outputting = true;

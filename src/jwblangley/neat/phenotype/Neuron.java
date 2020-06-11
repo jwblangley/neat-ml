@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * Phenotype for a neuron
+ */
 public class Neuron {
 
   protected final Function<Double, Double> activation;
