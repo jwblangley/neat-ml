@@ -13,6 +13,11 @@ public enum Activation implements Function<Double, Double>{
     this.func = func;
   }
 
+  /**
+   * Applies the activation function to a given input
+   * @param input the given input
+   * @return the result
+   */
   @Override
   public Double apply(Double input) {
     return func.apply(input);
