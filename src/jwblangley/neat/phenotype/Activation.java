@@ -4,7 +4,8 @@ import java.util.function.Function;
 
 public enum Activation implements Function<Double, Double>{
   RELU(x -> Math.max(0, x)),
-  SIGMOID(x -> Math.exp(x) / (Math.exp(x) + 1));
+  SIGMOID(x -> Math.exp(x) / (Math.exp(x) + 1)),
+  LINEAR(Function.identity());
 
   private final Function<Double, Double> func;
 
