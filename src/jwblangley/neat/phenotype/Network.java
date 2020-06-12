@@ -74,6 +74,11 @@ public class Network {
 
     // Add connections
     for (ConnectionGenotype connectionGenotype : genotype.getConnections()) {
+      // Skip disabled connections
+      if (!connectionGenotype.isEnabled()) {
+        continue;
+      }
+
       Neuron toNeuron = uidNeuronMap.get(connectionGenotype.getNeuronTo());
 
       toNeuron.addInput(uidNeuronMap.get(connectionGenotype.getNeuronFrom()),
