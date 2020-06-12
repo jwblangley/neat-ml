@@ -20,6 +20,7 @@ public class Neuron {
 
   /**
    * Construct a new Neuron
+   *
    * @param activation activation function
    */
   public Neuron(Function<Double, Double> activation) {
@@ -29,7 +30,6 @@ public class Neuron {
   }
 
   /**
-   *
    * @return whether this neuron has calculated it's output
    */
   public boolean isOutputting() {
@@ -37,8 +37,9 @@ public class Neuron {
   }
 
   /**
-   * Returns the output of this neuron. If this is called before the calculation has completed
-   * a RuntimeException is thrown. Check prior to usage with isOutputting()
+   * Returns the output of this neuron. If this is called before the calculation has completed a
+   * RuntimeException is thrown. Check prior to usage with isOutputting()
+   *
    * @return the calculated output of this neuron
    */
   public double getOutput() {
@@ -57,7 +58,8 @@ public class Neuron {
 
   /**
    * Connect a neuron as an input to this neuron
-   * @param input input neuron
+   *
+   * @param input          input neuron
    * @param incomingWeight weight of connection from input neuron to this neuron
    */
   public void addInput(Neuron input, double incomingWeight) {
@@ -67,10 +69,11 @@ public class Neuron {
 
 
   /**
-   * If all inputs are outputting, calculate the output, such that it can be accessed
-   * with getOutput()
-   * @return whether the calculation was successful (unsuccessful if an input neuron is
-   * not outputting)
+   * If all inputs are outputting, calculate the output, such that it can be accessed with
+   * getOutput()
+   *
+   * @return whether the calculation was successful (unsuccessful if an input neuron is not
+   * outputting)
    */
   public boolean tryCalculate() {
     // Skip if calculation has already been carried out
@@ -83,7 +86,7 @@ public class Neuron {
       return false;
     }
     double inputSum = 0;
-    for (Neuron input: inputs) {
+    for (Neuron input : inputs) {
       inputSum += input.getOutput() * inputWeightMap.get(input);
     }
 

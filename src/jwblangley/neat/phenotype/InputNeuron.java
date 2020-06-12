@@ -20,6 +20,7 @@ public class InputNeuron extends Neuron {
 
   /**
    * Set the input of the InputNeuron
+   *
    * @param input value to be set
    */
   public void setInput(double input) {
@@ -28,6 +29,7 @@ public class InputNeuron extends Neuron {
 
   /**
    * Throws UnsupportedOperationException
+   *
    * @param input
    * @param incomingWeight
    */
@@ -38,8 +40,9 @@ public class InputNeuron extends Neuron {
 
   /**
    * Calculates
-   * @return whether the calculation was successful (unsuccessful if an input neuron is
-   * not outputting)
+   *
+   * @return whether the calculation was successful (unsuccessful if an input neuron is not
+   * outputting)
    */
   @Override
   public boolean tryCalculate() {

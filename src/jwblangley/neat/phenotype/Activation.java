@@ -2,7 +2,7 @@ package jwblangley.neat.phenotype;
 
 import java.util.function.Function;
 
-public enum Activation implements Function<Double, Double>{
+public enum Activation implements Function<Double, Double> {
   RELU(x -> Math.max(0, x)),
   SIGMOID(x -> Math.exp(x) / (Math.exp(x) + 1)),
   LINEAR(Function.identity());
@@ -15,6 +15,7 @@ public enum Activation implements Function<Double, Double>{
 
   /**
    * Applies the activation function to a given input
+   *
    * @param input the given input
    * @return the result
    */
