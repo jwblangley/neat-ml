@@ -28,10 +28,26 @@ public class Network {
     this.outputNeurons = new ArrayList<>();
   }
 
+  /**
+   * Creates a new neural network for solving regression problems from a given NetworkGenotype.
+   * Input and Hidden neurons use ReLu for activation whilst Output neurons use a linear activation
+   * function to ensure a full range
+   *
+   * @param genotype genotype to build phenotype from
+   * @return constructed neural network (phenotype)
+   */
   public static Network createRegressionNetworkFromGenotype(NetworkGenotype genotype) {
     return createNetworkFromGenotype(genotype, Activation.LINEAR);
   }
 
+  /**
+   * Creates a new neural network for solving various optimisation problems from a given
+   * NetworkGenotype. Input and Hidden neurons use ReLu for activation whilst Output neurons use
+   * sigmoid for activation.
+   *
+   * @param genotype genotype to build phenotype from
+   * @return constructed neural network (phenotype)
+   */
   public static Network createSigmoidOutputNetworkFromGenotype(NetworkGenotype genotype) {
     return createNetworkFromGenotype(genotype, Activation.SIGMOID);
   }
@@ -87,6 +103,12 @@ public class Network {
     return network;
   }
 
+  /**
+   * Calculate the output of this neural network for given (ordered) inputs
+   *
+   * @param inputs ordered inputs in a List
+   * @return calculated result
+   */
   public List<Double> calculateOutputs(List<Double> inputs) {
     if (inputs.size() != inputNeurons.size()) {
       throw new InputMismatchException(
@@ -118,6 +140,12 @@ public class Network {
     return results;
   }
 
+  /**
+   * Calculate the output of this neural network for given (ordered) inputs
+   *
+   * @param inputs ordered inputs as varargs
+   * @return calculated result
+   */
   public List<Double> calculateOutputs(Double... inputs) {
     return calculateOutputs(Arrays.asList(inputs));
   }
