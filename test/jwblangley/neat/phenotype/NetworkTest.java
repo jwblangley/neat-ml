@@ -2,6 +2,7 @@ package jwblangley.neat.phenotype;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.InputMismatchException;
 import java.util.List;
 import jwblangley.neat.evolution.InnovationGenerator;
 import jwblangley.neat.genotype.ConnectionGenotype;
@@ -13,6 +14,51 @@ import org.junit.Test;
 public class NetworkTest {
 
   final static double TOLERANCE = 0.0000001;
+
+  @Test(expected = InputMismatchException.class)
+  public void cannotProvideTooManyInputs() {
+    // Setup genotype
+    NetworkGenotype networkGenotype = new NetworkGenotype();
+
+    NeuronGenotype inputGenotype = new NeuronGenotype(NeuronLayer.INPUT);
+    NeuronGenotype outputGenotype = new NeuronGenotype(NeuronLayer.OUTPUT);
+    networkGenotype.addNeuron(inputGenotype);
+    networkGenotype.addNeuron(outputGenotype);
+
+    InnovationGenerator innovationGenerator = new InnovationGenerator();
+    ConnectionGenotype connectionGenotype = new ConnectionGenotype(inputGenotype.getUid(),
+        outputGenotype.getUid(), innovationGenerator.next(), 2d, true);
+    networkGenotype.addConnection(connectionGenotype);
+
+    // Create phenotype
+    Network network = Network.createRegressionNetworkFromGenotype(networkGenotype);
+    List<Double> result = network.calculateOutputs(2.5d, 2.5d);
+  }
+
+  @Test(expected = InputMismatchException.class)
+  public void cannotProvideTooFewInputs() {
+    // Setup genotype
+    NetworkGenotype networkGenotype = new NetworkGenotype();
+
+    NeuronGenotype input1Genotype = new NeuronGenotype(NeuronLayer.INPUT);
+    NeuronGenotype input2Genotype = new NeuronGenotype(NeuronLayer.INPUT);
+    NeuronGenotype outputGenotype = new NeuronGenotype(NeuronLayer.OUTPUT);
+    networkGenotype.addNeuron(input1Genotype);
+    networkGenotype.addNeuron(input2Genotype);
+    networkGenotype.addNeuron(outputGenotype);
+
+    InnovationGenerator innovationGenerator = new InnovationGenerator();
+    ConnectionGenotype connection1Genotype = new ConnectionGenotype(input1Genotype.getUid(),
+        outputGenotype.getUid(), innovationGenerator.next(), 1d, true);
+    ConnectionGenotype connection2Genotype = new ConnectionGenotype(input2Genotype.getUid(),
+        outputGenotype.getUid(), innovationGenerator.next(), 2d, true);
+    networkGenotype.addConnection(connection1Genotype);
+    networkGenotype.addConnection(connection2Genotype);
+
+    // Create phenotype
+    Network network = Network.createRegressionNetworkFromGenotype(networkGenotype);
+    List<Double> result = network.calculateOutputs(2.5d);
+  }
 
   @Test(timeout = 10000)
   public void simpleRegressionNetworkCalculationIsCorrect() {
