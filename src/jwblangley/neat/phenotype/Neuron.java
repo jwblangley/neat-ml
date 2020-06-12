@@ -82,12 +82,12 @@ public class Neuron {
     if (!inputs.stream().allMatch(Neuron::isOutputting)) {
       return false;
     }
-    double inputAcc = 0;
+    double inputSum = 0;
     for (Neuron input: inputs) {
-      inputAcc += inputAcc * inputWeightMap.get(input);
+      inputSum += input.getOutput() * inputWeightMap.get(input);
     }
 
-    output = activation.apply(inputAcc);
+    output = activation.apply(inputSum);
     outputting = true;
     return true;
   }
