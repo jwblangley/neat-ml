@@ -51,11 +51,10 @@ public class EvolutionTest {
 
     double weightSum = 0;
 
+    evolution.setVerbose(true);
     for (int i = 1; i <= numGenerations; i++) {
+      System.out.println("Generation: " + i);
       evolution.evolve(random);
-      System.out.print("Generation: " + i);
-      System.out.print("\tHighest fitness: " + evolution.getHighestFitness());
-      System.out.print("\tNumber of species: " + evolution.getNumberOfSpecies());
 
       weightSum = 0;
       for (ConnectionGenotype connection : evolution.getFittestGenotype().getConnections()) {
@@ -63,7 +62,8 @@ public class EvolutionTest {
           weightSum += Math.abs(connection.getWeight());
         }
       }
-      System.out.println("\tWeight sum: " + weightSum);
+      System.out.println("Weight sum: " + weightSum);
+      System.out.println();
     }
 
     assertEquals(target, weightSum, tolerance);
@@ -116,11 +116,10 @@ public class EvolutionTest {
 
     double weightSum = 0;
 
+    evolution.setVerbose(true);
     for (int i = 1; i <= numGenerations; i++) {
+      System.out.println("Generation: " + i);
       evolution.evolve(random);
-      System.out.print("Generation: " + i);
-      System.out.print("\tHighest fitness: " + evolution.getHighestFitness());
-      System.out.print("\tNumber of species: " + evolution.getNumberOfSpecies());
 
       weightSum = 0;
       for (ConnectionGenotype connection : evolution.getFittestGenotype().getConnections()) {
@@ -128,7 +127,8 @@ public class EvolutionTest {
           weightSum += Math.abs(connection.getWeight());
         }
       }
-      System.out.println("\tWeight sum: " + weightSum);
+      System.out.println("Weight sum: " + weightSum);
+      System.out.println();
     }
 
     assertEquals(target, weightSum, tolerance);

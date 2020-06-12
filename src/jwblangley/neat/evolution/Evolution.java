@@ -30,6 +30,7 @@ public class Evolution {
 
   private double highestFitness;
   private NetworkGenotype fittestGenotype;
+  private boolean verbose = false;
 
   private final Map<NetworkGenotype, Species> genotypeSpeciesMap;
   /**
@@ -65,6 +66,16 @@ public class Evolution {
     genotypeSpeciesMap = new HashMap<>();
     genotypeFitnessMap = new HashMap<>();
     allSpecies = new ArrayList<>();
+  }
+
+  /**
+   * Set verbose mode. In verbose mode, highest fitness and number of species is reported to stdout
+   * after each generation is evaluated. Verbose mode is initially disabled
+   *
+   * @param verbose whether verbose mode should be enabled
+   */
+  public void setVerbose(boolean verbose) {
+    this.verbose = verbose;
   }
 
   /**
@@ -156,6 +167,12 @@ public class Evolution {
       threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
     } catch (InterruptedException e) {
       System.err.println("Waiting for thread pool execution to finish, outlasted the universe");
+    }
+
+    // Report generation statistics
+    if (verbose) {
+      System.out.println("Highest fitness: " + getHighestFitness());
+      System.out.println("Number of species: " + getNumberOfSpecies());
     }
 
     // Sort all species
