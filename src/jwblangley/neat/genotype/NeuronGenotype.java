@@ -2,11 +2,13 @@ package jwblangley.neat.genotype;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import jwblangley.neat.proto.Genotypes;
+import jwblangley.neat.proto.ProtoEquivalent;
 
 /**
  * Genotype representing a neuron
  */
-public class NeuronGenotype {
+public class NeuronGenotype implements ProtoEquivalent {
 
   private final static AtomicInteger uidGenerator = new AtomicInteger();
 
@@ -36,6 +38,55 @@ public class NeuronGenotype {
    */
   public NeuronGenotype(NeuronGenotype toCopy) {
     this(toCopy.layer, toCopy.uid);
+  }
+
+  /**
+   * Construct a new NeuronGenotype from a protobuf object
+   *
+   * @param protoNeuron the protobuf object
+   */
+  public NeuronGenotype(Genotypes.NeuronGenotype protoNeuron) {
+    this(protoToLayer(protoNeuron.getLayer()), protoNeuron.getUid());
+  }
+
+  /**
+   * Create a protobuf object of this Neuron
+   *
+   * @return the protobuf object
+   */
+  @Override
+  public Genotypes.NeuronGenotype toProto() {
+    return Genotypes.NeuronGenotype.newBuilder()
+        .setUid(uid)
+        .setLayer(layerToProto(layer))
+        .build();
+  }
+
+  // These could be derived from enum values, but writing explicitly for implementation decoupling
+  private static Genotypes.NeuronGenotype.NeuronLayer layerToProto(NeuronLayer layer) {
+    if (layer == NeuronLayer.INPUT) {
+      return Genotypes.NeuronGenotype.NeuronLayer.INPUT;
+    }
+    if (layer == NeuronLayer.HIDDEN) {
+      return Genotypes.NeuronGenotype.NeuronLayer.HIDDEN;
+    }
+    if (layer == NeuronLayer.OUTPUT) {
+      return Genotypes.NeuronGenotype.NeuronLayer.OUTPUT;
+    }
+    throw new IllegalArgumentException("Invalid neuron layer");
+  }
+
+  private static NeuronLayer protoToLayer(Genotypes.NeuronGenotype.NeuronLayer layer) {
+    if (layer == Genotypes.NeuronGenotype.NeuronLayer.INPUT) {
+      return NeuronLayer.INPUT;
+    }
+    if (layer == Genotypes.NeuronGenotype.NeuronLayer.HIDDEN) {
+      return NeuronLayer.HIDDEN;
+    }
+    if (layer == Genotypes.NeuronGenotype.NeuronLayer.OUTPUT) {
+      return NeuronLayer.OUTPUT;
+    }
+    throw new IllegalArgumentException("Invalid neuron layer");
   }
 
   public NeuronLayer getLayer() {

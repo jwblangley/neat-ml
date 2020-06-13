@@ -9,13 +9,15 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import jwblangley.neat.evolution.InnovationGenerator;
+import jwblangley.neat.proto.Genotypes;
+import jwblangley.neat.proto.ProtoEquivalent;
 import jwblangley.neat.util.DisjointExcess;
 import jwblangley.neat.util.ImmutableHomogeneousPair;
 
 /**
  * Genotype representing a neural network
  */
-public class NetworkGenotype {
+public class NetworkGenotype implements ProtoEquivalent {
 
   /**
    * Constant for compatibility distance calculation weighting the relative importance of excess
@@ -62,6 +64,41 @@ public class NetworkGenotype {
     connections = toCopy.connections.stream()
         .map(ConnectionGenotype::new)
         .collect(Collectors.toList());
+  }
+
+  /**
+   * Create a new NeuronGenotype from a protobuf object
+   *
+   * @param protoNetwork the protobuf object
+   */
+  public NetworkGenotype(Genotypes.NetworkGenotype protoNetwork) {
+    neurons = protoNetwork.getNeuronsList().stream()
+        .map(NeuronGenotype::new)
+        .collect(Collectors.toList());
+    connections = protoNetwork.getConnectionsList().stream()
+        .map(ConnectionGenotype::new)
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Create a protobuf object of this Network
+   *
+   * @return the protobuf object
+   */
+  @Override
+  public Genotypes.NetworkGenotype toProto() {
+    List<Genotypes.NeuronGenotype> protoNeurons = neurons.stream()
+        .map(NeuronGenotype::toProto)
+        .collect(Collectors.toList());
+
+    List<Genotypes.ConnectionGenotype> protoConnections = connections.stream()
+        .map(ConnectionGenotype::toProto)
+        .collect(Collectors.toList());
+
+    return Genotypes.NetworkGenotype.newBuilder()
+        .addAllNeurons(protoNeurons)
+        .addAllConnections(protoConnections)
+        .build();
   }
 
   public List<NeuronGenotype> getNeurons() {

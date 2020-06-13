@@ -55,7 +55,6 @@ public class EvolutionTest {
 
     evolution.setVerbose(true);
     for (int i = 1; i <= numGenerations; i++) {
-      System.out.println("Generation: " + i);
       evolution.evolve(random);
 
       weightSum = 0;
@@ -122,7 +121,6 @@ public class EvolutionTest {
 
     evolution.setVerbose(true);
     for (int i = 1; i <= numGenerations; i++) {
-      System.out.println("Generation: " + i);
       evolution.evolve(random);
 
       weightSum = 0;

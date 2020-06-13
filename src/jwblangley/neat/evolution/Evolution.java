@@ -10,12 +10,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 import jwblangley.neat.genotype.NetworkGenotype;
+import jwblangley.neat.proto.EvolutionOuterClass;
+import jwblangley.neat.proto.Genotypes;
+import jwblangley.neat.proto.ProtoEquivalent;
 
 /**
  * Class to control the evolution and growth of neural network at the core of the NEAT algorithm
  */
-public class Evolution {
+public class Evolution implements ProtoEquivalent {
 
   private static final double INITIAL_COMPATIBILITY_DISTANCE_THRESHOLD = 10d;
   private static final double COMPATIBILITY_MODIFIER = 1.7d;
@@ -38,6 +42,7 @@ public class Evolution {
   private double highestFitness;
   private NetworkGenotype fittestGenotype;
   private boolean verbose = false;
+  private int generationNumber;
 
   private final Map<NetworkGenotype, Species> genotypeSpeciesMap;
   /**
@@ -50,7 +55,8 @@ public class Evolution {
    * Construct a new Evolution object
    *
    * @param populationSize      size of the population for each generation
-   * @param startingGenotype    genotype for the inital population to be filled with
+   * @param targetNumSpecies    number of targeted species in the population
+   * @param startingGenotype    genotype for the initial population to be filled with
    * @param innovationGenerator Generator for innovation markers
    * @param evaluator           Function to simulate and evaluate a single genotype
    * @param numThreads          Number of concurrent threads to evaluate the population with
@@ -63,6 +69,7 @@ public class Evolution {
     assert targetNumSpecies < populationSize;
 
     this.populationSize = populationSize;
+    this.generationNumber = 0;
     this.targetNumSpecies = targetNumSpecies;
     this.innovationGenerator = innovationGenerator;
     this.evaluator = evaluator;
@@ -82,8 +89,62 @@ public class Evolution {
   }
 
   /**
-   * Set verbose mode. In verbose mode, highest fitness and number of species is reported to stdout
-   * after each generation is evaluated. Verbose mode is initially disabled
+   * Create a new Evolution object from a protobuf object
+   * At least one call to evolve on the new object must happen before statistics are available
+   *
+   * @param protoEvolution   protobuf object to create from
+   * @param targetNumSpecies number of targeted species in the population
+   * @param numThreads       Number of concurrent threads to evaluate the population with
+   * @param evaluator        Function to simulate and evaluate a single genotype
+   */
+  public Evolution(EvolutionOuterClass.Evolution protoEvolution, int targetNumSpecies,
+      int numThreads, Evaluator evaluator) {
+
+    this.populationSize = protoEvolution.getCurrentGenerationList().size();
+    this.generationNumber = protoEvolution.getGenerationNumber();
+    this.targetNumSpecies = targetNumSpecies;
+    this.innovationGenerator = new InnovationGenerator(protoEvolution.getCurrentInnovationMarker());
+    this.evaluator = evaluator;
+    this.numThreads = numThreads;
+    this.compatibilityDistanceThreshold = protoEvolution.getCompatibilityDistanceThreshold();
+
+    // Initialise population
+    currentGeneration = protoEvolution.getCurrentGenerationList().stream()
+        .map(NetworkGenotype::new)
+        .collect(Collectors.toList());
+
+    // Initialise empty stats
+    genotypeSpeciesMap = new HashMap<>();
+    genotypeFitnessMap = new HashMap<>();
+    allSpecies = new ArrayList<>();
+  }
+
+  /**
+   * Create a protobuf object of this Evolution object
+   *
+   * @return the protobuf object
+   */
+  @Override
+  public EvolutionOuterClass.Evolution toProto() {
+    List<Genotypes.NetworkGenotype> protoCurrentGen = currentGeneration.stream()
+        .map(NetworkGenotype::toProto)
+        .collect(Collectors.toList());
+    /*
+     N.B: we increment the innovation generator here, but this has no adverse side affects.
+     It just resembles an innovation where nothing happened
+     */
+
+    return EvolutionOuterClass.Evolution.newBuilder()
+        .addAllCurrentGeneration(protoCurrentGen)
+        .setGenerationNumber(generationNumber)
+        .setCurrentInnovationMarker(innovationGenerator.next())
+        .setCompatibilityDistanceThreshold(compatibilityDistanceThreshold)
+        .build();
+  }
+
+  /**
+   * Set verbose mode. In verbose mode, generation number, highest fitness and number of species are
+   * reported to stdout after each generation is evaluated. Verbose mode is initially disabled
    *
    * @param verbose whether verbose mode should be enabled
    */
@@ -121,6 +182,11 @@ public class Evolution {
    *               inconsistent results.
    */
   public void evolve(Random random) {
+    generationNumber++;
+    if (verbose) {
+      System.out.println("Generation " + generationNumber);
+    }
+
     // Reset all stats before next generation evaluation
     reset(random);
 
