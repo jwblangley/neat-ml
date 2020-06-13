@@ -66,7 +66,22 @@ public class NetworkGenotype {
   }
 
   /**
+   * Create a new NeuronGenotype from a protobuf object
+   *
+   * @param protoNetwork the protobuf object
+   */
+  public NetworkGenotype(Genotypes.NetworkGenotype protoNetwork) {
+    neurons = protoNetwork.getNeuronsList().stream()
+        .map(NeuronGenotype::new)
+        .collect(Collectors.toList());
+    connections = protoNetwork.getConnectionsList().stream()
+        .map(ConnectionGenotype::new)
+        .collect(Collectors.toList());
+  }
+
+  /**
    * Create a protobuf object of this Network
+   *
    * @return the protobuf object
    */
   public Genotypes.NetworkGenotype toProto() {

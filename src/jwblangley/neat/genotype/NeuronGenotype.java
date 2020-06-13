@@ -40,7 +40,17 @@ public class NeuronGenotype {
   }
 
   /**
+   * Construct a new NeuronGenotype from a protobuf object
+   *
+   * @param protoNeuron the protobuf object
+   */
+  public NeuronGenotype(Genotypes.NeuronGenotype protoNeuron) {
+    this(protoToLayer(protoNeuron.getLayer()), protoNeuron.getUid());
+  }
+
+  /**
    * Create a protobuf object of this Neuron
+   *
    * @return the protobuf object
    */
   public Genotypes.NeuronGenotype toProto() {
@@ -50,6 +60,7 @@ public class NeuronGenotype {
         .build();
   }
 
+  // These could be derived from enum values, but writing explicitly for implementation decoupling
   private static Genotypes.NeuronGenotype.NeuronLayer layerToProto(NeuronLayer layer) {
     if (layer == NeuronLayer.INPUT) {
       return Genotypes.NeuronGenotype.NeuronLayer.INPUT;
@@ -59,6 +70,19 @@ public class NeuronGenotype {
     }
     if (layer == NeuronLayer.OUTPUT) {
       return Genotypes.NeuronGenotype.NeuronLayer.OUTPUT;
+    }
+    throw new IllegalArgumentException("Invalid neuron layer");
+  }
+
+  private static NeuronLayer protoToLayer(Genotypes.NeuronGenotype.NeuronLayer layer) {
+    if (layer == Genotypes.NeuronGenotype.NeuronLayer.INPUT) {
+      return NeuronLayer.INPUT;
+    }
+    if (layer == Genotypes.NeuronGenotype.NeuronLayer.HIDDEN) {
+      return NeuronLayer.HIDDEN;
+    }
+    if (layer == Genotypes.NeuronGenotype.NeuronLayer.OUTPUT) {
+      return NeuronLayer.OUTPUT;
     }
     throw new IllegalArgumentException("Invalid neuron layer");
   }

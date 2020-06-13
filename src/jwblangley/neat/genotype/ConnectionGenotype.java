@@ -55,7 +55,23 @@ public class ConnectionGenotype {
   }
 
   /**
+   * Construct a new ConnectionGenotype from a protobuf object
+   *
+   * @param protoConnection the protobuf object
+   */
+  public ConnectionGenotype(Genotypes.ConnectionGenotype protoConnection) {
+    this(
+        protoConnection.getNeuronUidFrom(),
+        protoConnection.getNeuronUidTo(),
+        protoConnection.getInnovationMarker(),
+        protoConnection.getWeight(),
+        protoConnection.getEnabled()
+    );
+  }
+
+  /**
    * Create a protobuf object of this Connection
+   *
    * @return the protobuf object
    */
   public Genotypes.ConnectionGenotype toProto() {
