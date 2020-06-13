@@ -87,6 +87,28 @@ public class Evolution implements ProtoEquivalent {
     allSpecies = new ArrayList<>();
   }
 
+  public Evolution(EvolutionOuterClass.Evolution protoEvolution, int targetNumSpecies,
+       int numThreads, Evaluator evaluator) {
+
+    this.populationSize = protoEvolution.getCurrentGenerationList().size();
+    this.generationNumber = protoEvolution.getGenerationNumber();
+    this.targetNumSpecies = targetNumSpecies;
+    this.innovationGenerator = new InnovationGenerator(protoEvolution.getCurrentInnovationMarker());
+    this.evaluator = evaluator;
+    this.numThreads = numThreads;
+    this.compatibilityDistanceThreshold = protoEvolution.getCompatibilityDistanceThreshold();
+
+    // Initialise population
+    currentGeneration = protoEvolution.getCurrentGenerationList().stream()
+        .map(NetworkGenotype::new)
+        .collect(Collectors.toList());
+
+    // Initialise empty stats
+    genotypeSpeciesMap = new HashMap<>();
+    genotypeFitnessMap = new HashMap<>();
+    allSpecies = new ArrayList<>();
+  }
+
   /**
    * Create a protobuf object of this Evolution object
    *
