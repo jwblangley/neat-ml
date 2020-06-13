@@ -8,9 +8,22 @@ import java.io.IOException;
 import jwblangley.neat.evolution.FullEvolutionPhenotypeTest;
 import jwblangley.neat.genotype.NetworkGenotype;
 import jwblangley.neat.phenotype.Network;
+import org.junit.Before;
 import org.junit.Test;
 
 public class SaveAndReadXorNetworkTest {
+
+  final File outputDir = new File("testOutput/").getAbsoluteFile();
+
+  @Before
+  public void clearOutputDirectory() {
+    System.out.println("Hello");
+    if (outputDir.exists()) {
+      outputDir.delete();
+    }
+
+    outputDir.mkdir();
+  }
 
   @Test
   public void savedAndLoadedGenotypeKnowsXor() {
@@ -37,10 +50,6 @@ public class SaveAndReadXorNetworkTest {
 
   @Test
   public void savedAndLoadedDiskGenotypeKnowsXor() throws IOException {
-    final File outputDir = new File("testOutput/").getAbsoluteFile();
-    assertFalse("outputDir already exists", outputDir.exists());
-    assertTrue("Failed to create outputDir", outputDir.mkdir());
-
     final File outputFile = new File(outputDir, "xor.genotype");
 
     NetworkGenotype knowsXor = FullEvolutionPhenotypeTest.networkLearnsXor();
