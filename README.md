@@ -74,7 +74,6 @@ public class LearnXor {
     // Evolve!
     evolution.setVerbose(true);
     for (int i = 1; i <= numGenerations; i++) {
-      System.out.println("Generation: " + i);
       // This call is all you need to evolve your population (one generation)!
       evolution.evolve(random);
 

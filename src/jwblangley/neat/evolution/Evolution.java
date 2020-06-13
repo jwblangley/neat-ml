@@ -38,6 +38,7 @@ public class Evolution {
   private double highestFitness;
   private NetworkGenotype fittestGenotype;
   private boolean verbose = false;
+  private int generationNumber;
 
   private final Map<NetworkGenotype, Species> genotypeSpeciesMap;
   /**
@@ -63,6 +64,7 @@ public class Evolution {
     assert targetNumSpecies < populationSize;
 
     this.populationSize = populationSize;
+    this.generationNumber = 0;
     this.targetNumSpecies = targetNumSpecies;
     this.innovationGenerator = innovationGenerator;
     this.evaluator = evaluator;
@@ -82,8 +84,9 @@ public class Evolution {
   }
 
   /**
-   * Set verbose mode. In verbose mode, highest fitness and number of species is reported to stdout
-   * after each generation is evaluated. Verbose mode is initially disabled
+   * Set verbose mode. In verbose mode, generation number, highest fitness and number of species
+   * are reported to stdout after each generation is evaluated.
+   * Verbose mode is initially disabled
    *
    * @param verbose whether verbose mode should be enabled
    */
@@ -121,6 +124,11 @@ public class Evolution {
    *               inconsistent results.
    */
   public void evolve(Random random) {
+    generationNumber++;
+    if (verbose) {
+      System.out.println("Generation " + generationNumber);
+    }
+
     // Reset all stats before next generation evaluation
     reset(random);
 

@@ -52,7 +52,6 @@ public class FullEvolutionPhenotypeTest {
     // Evolve
     evolution.setVerbose(true);
     for (int i = 1; i <= numGenerations; i++) {
-      System.out.println("Generation: " + i);
       evolution.evolve(random);
 
       System.out.println();
@@ -113,7 +112,6 @@ public class FullEvolutionPhenotypeTest {
     // Evolve
     evolution.setVerbose(true);
     for (int i = 1; i <= numGenerations; i++) {
-      System.out.println("Generation: " + i);
       evolution.evolve(random);
 
       System.out.println();
@@ -169,7 +167,6 @@ public class FullEvolutionPhenotypeTest {
     // Evolve
     evolution.setVerbose(true);
     for (int i = 1; i <= numGenerations; i++) {
-      System.out.println("Generation: " + i);
       evolution.evolve(random);
 
       System.out.println();
