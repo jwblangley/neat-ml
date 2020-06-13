@@ -31,7 +31,7 @@ public class NetworkTest {
     networkGenotype.addConnection(connectionGenotype);
 
     // Create phenotype
-    Network network = Network.createRegressionNetworkFromGenotype(networkGenotype);
+    Network network = Network.createLinearOutputNetworkFromGenotype(networkGenotype);
     List<Double> result = network.calculateOutputs(2.5d, 2.5d);
   }
 
@@ -56,12 +56,12 @@ public class NetworkTest {
     networkGenotype.addConnection(connection2Genotype);
 
     // Create phenotype
-    Network network = Network.createRegressionNetworkFromGenotype(networkGenotype);
+    Network network = Network.createLinearOutputNetworkFromGenotype(networkGenotype);
     List<Double> result = network.calculateOutputs(2.5d);
   }
 
   @Test(timeout = 10000)
-  public void simpleRegressionNetworkCalculationIsCorrect() {
+  public void simpleLinearNetworkCalculationIsCorrect() {
     // Setup genotype
     NetworkGenotype networkGenotype = new NetworkGenotype();
 
@@ -76,7 +76,7 @@ public class NetworkTest {
     networkGenotype.addConnection(connectionGenotype);
 
     // Create phenotype
-    Network network = Network.createRegressionNetworkFromGenotype(networkGenotype);
+    Network network = Network.createLinearOutputNetworkFromGenotype(networkGenotype);
     List<Double> result = network.calculateOutputs(5d);
 
     assertEquals(1, result.size());
@@ -107,7 +107,7 @@ public class NetworkTest {
   }
 
   @Test(timeout = 10000)
-  public void regressionNetworkWithDisabledCalculationIsCorrect() {
+  public void linearNetworkWithDisabledCalculationIsCorrect() {
     // Setup genotype
     NetworkGenotype networkGenotype = new NetworkGenotype();
 
@@ -132,7 +132,7 @@ public class NetworkTest {
     networkGenotype.addConnection(con3);
 
     // Create phenotype
-    Network network = Network.createRegressionNetworkFromGenotype(networkGenotype);
+    Network network = Network.createLinearOutputNetworkFromGenotype(networkGenotype);
     List<Double> result = network.calculateOutputs(5d);
 
     assertEquals(1, result.size());
@@ -195,7 +195,7 @@ public class NetworkTest {
     networkGenotype.addConnection(con8);
 
     // Create phenotype
-    Network network = Network.createRegressionNetworkFromGenotype(networkGenotype);
+    Network network = Network.createLinearOutputNetworkFromGenotype(networkGenotype);
     List<Double> result = network.calculateOutputs(3d, 2d);
 
     assertEquals(2, result.size());
