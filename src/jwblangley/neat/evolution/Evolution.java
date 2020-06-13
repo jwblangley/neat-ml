@@ -55,7 +55,8 @@ public class Evolution implements ProtoEquivalent {
    * Construct a new Evolution object
    *
    * @param populationSize      size of the population for each generation
-   * @param startingGenotype    genotype for the inital population to be filled with
+   * @param targetNumSpecies    number of targeted species in the population
+   * @param startingGenotype    genotype for the initial population to be filled with
    * @param innovationGenerator Generator for innovation markers
    * @param evaluator           Function to simulate and evaluate a single genotype
    * @param numThreads          Number of concurrent threads to evaluate the population with
@@ -87,6 +88,14 @@ public class Evolution implements ProtoEquivalent {
     allSpecies = new ArrayList<>();
   }
 
+  /**
+   * Create a new Evolution object from a protobuf object
+   *
+   * @param protoEvolution protobuf object to create from
+   * @param targetNumSpecies number of targeted species in the population
+   * @param numThreads Number of concurrent threads to evaluate the population with
+   * @param evaluator Function to simulate and evaluate a single genotype
+   */
   public Evolution(EvolutionOuterClass.Evolution protoEvolution, int targetNumSpecies,
        int numThreads, Evaluator evaluator) {
 
