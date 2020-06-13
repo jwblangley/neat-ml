@@ -5,13 +5,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
+import jwblangley.neat.evolution.Evolution;
 import jwblangley.neat.evolution.FullEvolutionPhenotypeTest;
-import jwblangley.neat.genotype.NetworkGenotype;
 import jwblangley.neat.phenotype.Network;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SaveAndReadXorNetworkTest {
+public class SaveAndReadXorEvolutionTest {
 
   final File outputDir = new File("testOutput/").getAbsoluteFile();
 
@@ -26,17 +27,26 @@ public class SaveAndReadXorNetworkTest {
   }
 
   @Test
-  public void savedAndLoadedGenotypeKnowsXor() {
-    NetworkGenotype knowsXor = FullEvolutionPhenotypeTest.networkLearnsXor().getFittestGenotype();
+  public void savedAndLoadedEvolutionKnowsXor() {
+    Evolution evolvesXor = FullEvolutionPhenotypeTest.networkLearnsXor();
 
     System.out.println("Saving to proto...");
-    Genotypes.NetworkGenotype protoNetwork = knowsXor.toProto();
+    EvolutionOuterClass.Evolution protoEvolution = evolvesXor.toProto();
     System.out.println("Reading from proto...");
-    NetworkGenotype fromProto = new NetworkGenotype(protoNetwork);
+    Evolution fromProto = new Evolution(
+        protoEvolution,
+        FullEvolutionPhenotypeTest.XOR_TARGET_NUM_SPECIES,
+        FullEvolutionPhenotypeTest.XOR_NUM_THREADS,
+        FullEvolutionPhenotypeTest.XOR_EVALUATOR
+    );
 
-    System.out.println("Testing loaded network");
+    System.out.println("Evolving loaded Evolution once");
+    fromProto.setVerbose(true);
+    fromProto.evolve(new Random(100));
+
+    System.out.println("\nTesting loaded network");
     Network bestNetwork = Network
-        .createSigmoidOutputNetworkFromGenotype(fromProto);
+        .createSigmoidOutputNetworkFromGenotype(fromProto.getFittestGenotype());
     final boolean ff = bestNetwork.calculateOutputs(0d, 0d).get(0) > 0.5;
     final boolean ft = bestNetwork.calculateOutputs(0d, 1d).get(0) > 0.5;
     final boolean tf = bestNetwork.calculateOutputs(1d, 0d).get(0) > 0.5;
@@ -49,20 +59,29 @@ public class SaveAndReadXorNetworkTest {
   }
 
   @Test
-  public void savedAndLoadedDiskGenotypeKnowsXor() throws IOException {
-    final File outputFile = new File(outputDir, "xor.genotype");
+  public void savedAndLoadedDiskEvolutionKnowsXor() throws IOException {
+    final File outputFile = new File(outputDir, "xor.evolution");
 
-    NetworkGenotype knowsXor = FullEvolutionPhenotypeTest.networkLearnsXor().getFittestGenotype();
+    Evolution evolvesXor = FullEvolutionPhenotypeTest.networkLearnsXor();
 
     System.out.println("Saving to disk...");
-    ProtoIO.toFile(knowsXor, outputFile);
+    ProtoIO.toFile(evolvesXor, outputFile);
 
     System.out.println("Reading from proto...");
-    NetworkGenotype fromProto = ProtoIO.networkFromFile(outputFile);
+    Evolution fromProto = ProtoIO.evolutionFromFile(
+        outputFile,
+        FullEvolutionPhenotypeTest.XOR_TARGET_NUM_SPECIES,
+        FullEvolutionPhenotypeTest.XOR_NUM_THREADS,
+        FullEvolutionPhenotypeTest.XOR_EVALUATOR
+    );
 
-    System.out.println("Testing loaded network");
+    System.out.println("Evolving loaded Evolution once");
+    fromProto.setVerbose(true);
+    fromProto.evolve(new Random(100));
+
+    System.out.println("\nTesting loaded network");
     Network bestNetwork = Network
-        .createSigmoidOutputNetworkFromGenotype(fromProto);
+        .createSigmoidOutputNetworkFromGenotype(fromProto.getFittestGenotype());
     final boolean ff = bestNetwork.calculateOutputs(0d, 0d).get(0) > 0.5;
     final boolean ft = bestNetwork.calculateOutputs(0d, 1d).get(0) > 0.5;
     final boolean tf = bestNetwork.calculateOutputs(1d, 0d).get(0) > 0.5;

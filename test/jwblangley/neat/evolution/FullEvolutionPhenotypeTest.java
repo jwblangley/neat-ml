@@ -11,47 +11,50 @@ import org.junit.Test;
 
 public class FullEvolutionPhenotypeTest {
 
+  public static final int XOR_TESTS_IN_EVALUATE = 20;
+  public static final int XOR_NUM_GENERATIONS = 100;
+  public static final int XOR_POPULATION_SIZE = 100;
+  public static final int XOR_TARGET_NUM_SPECIES = 5;
+  public static final int XOR_NUM_THREADS = 8;
+  private static Random innerRandom = new Random();
+  public static final Evaluator XOR_EVALUATOR = networkGenotype -> {
+    Network network = Network.createSigmoidOutputNetworkFromGenotype(networkGenotype);
+
+    int numCorrect = 0;
+    for (int i = 0; i < XOR_TESTS_IN_EVALUATE; i++) {
+      final double a = Math.round(innerRandom.nextDouble());
+      final double b = Math.round(innerRandom.nextDouble());
+
+      final double output = network.calculateOutputs(a, b).get(0);
+
+      final boolean expected = (a > 0.5) ^ (b > 0.5);
+      final boolean actual = output > 0.5;
+
+      if (expected == actual) {
+        numCorrect++;
+      }
+    }
+
+    return numCorrect * 100d / XOR_TESTS_IN_EVALUATE;
+  };
+
   @Test
   public void neatCanLearnXor() {
     networkLearnsXor();
   }
 
-  public static NetworkGenotype networkLearnsXor() {
+  public static Evolution networkLearnsXor() {
     Random random = new Random(100);
     // Inner random so NEAT is deterministic with the previous random
     Random innerRandom = new Random(100);
 
-    final int testsInEvaluate = 20;
-    final int numGenerations = 100;
-    final int populationSize = 100;
-    final int targetNumSpecies = 5;
-    final int numThreads = 8;
-
     Evolution evolution = EvolutionFactory
-        .createOptimisation(2, 1, populationSize, targetNumSpecies, numThreads, networkGenotype -> {
-          Network network = Network.createSigmoidOutputNetworkFromGenotype(networkGenotype);
-
-          int numCorrect = 0;
-          for (int i = 0; i < testsInEvaluate; i++) {
-            final double a = Math.round(innerRandom.nextDouble());
-            final double b = Math.round(innerRandom.nextDouble());
-
-            final double output = network.calculateOutputs(a, b).get(0);
-
-            final boolean expected = (a > 0.5) ^ (b > 0.5);
-            final boolean actual = output > 0.5;
-
-            if (expected == actual) {
-              numCorrect++;
-            }
-          }
-
-          return numCorrect * 100d / testsInEvaluate;
-        });
+        .createOptimisation(2, 1, XOR_POPULATION_SIZE, XOR_TARGET_NUM_SPECIES, XOR_NUM_THREADS,
+            XOR_EVALUATOR);
 
     // Evolve
     evolution.setVerbose(true);
-    for (int i = 1; i <= numGenerations; i++) {
+    for (int i = 1; i <= XOR_NUM_GENERATIONS; i++) {
       evolution.evolve(random);
 
       System.out.println();
@@ -71,7 +74,7 @@ public class FullEvolutionPhenotypeTest {
     assertTrue(tf);
     assertFalse(tt);
 
-    return fittestGenotype;
+    return evolution;
   }
 
   @Test
