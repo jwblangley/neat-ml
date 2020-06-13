@@ -47,10 +47,10 @@ public class SaveAndReadXorNetworkTest {
 
     System.out.println("Saving to disk...");
     Genotypes.NetworkGenotype protoNetwork = knowsXor.toProto();
-    ProtoIO.toDisk(protoNetwork, outputFile);
+    ProtoIO.toFile(protoNetwork, outputFile);
 
     System.out.println("Reading from proto...");
-    NetworkGenotype fromProto = new NetworkGenotype(ProtoIO.fromDisk(outputFile));
+    NetworkGenotype fromProto = new NetworkGenotype(ProtoIO.fromFile(outputFile));
 
     System.out.println("Testing loaded network");
     Network bestNetwork = Network
