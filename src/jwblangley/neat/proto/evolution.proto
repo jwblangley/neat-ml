@@ -6,6 +6,7 @@ import "src/jwblangley/neat/proto/genotypes.proto";
 
 message Evolution {
   repeated NetworkGenotype currentGeneration = 1;
-  int32 currentInnovationMarker = 2;
-  double compatibilityDistanceThreshold = 3;
+  int32 generationNumber = 2;
+  int32 currentInnovationMarker = 3;
+  double compatibilityDistanceThreshold = 4;
 }
