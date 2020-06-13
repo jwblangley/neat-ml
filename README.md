@@ -3,11 +3,12 @@ An implementation of the NEAT (Neuroevolution through augmenting topologies) alg
 
 ## Features
 * *Fully* documented code base ideal for learning and people new to the subject
-* Super friendly highly abstracated interfaces that hide the implementation details so you can focus on your use case
+    * Documentation can be found [here](https://jwblangley.github.io/neat-ml/)
+* Super friendly highly abstracted interfaces that hide the implementation details, so you can focus on your use case
   * Friendly implementations of both genotypes and phenotypes
   * All you need to worry about is inputs, outputs and fitness!
 * Multi-threading support for concurrent genotype evaluation just by specifying the number of worker threads
-* Neural network visualiser to create images so you can see what networks are being created
+* Neural network visualiser to create images, so you can see what networks are created
 * Full serializing and deserializing support using [google's protobuf](https://developers.google.com/protocol-buffers), allowing you to save interesting genotypes (networks) or even save your training progress to disk!
 
 ## Quick start
@@ -119,7 +120,7 @@ public class LearnXor {
 
 ### Visualiser
 
-Visalising a neural network is a great way to understand a bit about what is going on and it also looks great!
+Visualising a neural network is a great way to understand a bit about what is going on and it also looks great!
 The visualiser in this library has the following features:
 * Different colours for positive and negative weights
   * Orange for positive
@@ -146,7 +147,7 @@ This can achieve results like this:
 
 ### Serialise
 #### Networks
-You can save a particular network genotype for later use. This could be so that you can keep track of the best/most interesting individuals and have them evaluate without the need for training. This is a great utility that has many uses: for example embedding in games as the AI!
+You can save a particular network genotype for later use. This could be so that you can keep track of the best/most interesting individuals and have them evaluate without the need for training. This is a great utility with many uses: for example embedding in games as the AI!
 
 To write a network genotype to a file:
 ```java
