@@ -1,6 +1,7 @@
 package jwblangley.neat.genotype;
 
 import java.util.Objects;
+import jwblangley.neat.proto.Genotypes;
 
 /**
  * Genotype representing a connection between two neurons
@@ -51,6 +52,16 @@ public class ConnectionGenotype {
         toCopy.weight,
         toCopy.enabled
     );
+  }
+
+  public Genotypes.ConnectionGenotype toProto() {
+    return Genotypes.ConnectionGenotype.newBuilder()
+        .setNeuronUidFrom(neuronFrom)
+        .setNeuronUidTo(neuronTo)
+        .setInnovationMarker(innovationMarker)
+        .setWeight(weight)
+        .setEnabled(enabled)
+        .build();
   }
 
   /**

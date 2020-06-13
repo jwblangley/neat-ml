@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import jwblangley.neat.evolution.InnovationGenerator;
+import jwblangley.neat.proto.Genotypes;
 import jwblangley.neat.util.DisjointExcess;
 import jwblangley.neat.util.ImmutableHomogeneousPair;
 
@@ -62,6 +63,21 @@ public class NetworkGenotype {
     connections = toCopy.connections.stream()
         .map(ConnectionGenotype::new)
         .collect(Collectors.toList());
+  }
+
+  public Genotypes.NetworkGenotype toProto() {
+    List<Genotypes.NeuronGenotype> protoNeurons = neurons.stream()
+        .map(NeuronGenotype::toProto)
+        .collect(Collectors.toList());
+
+    List<Genotypes.ConnectionGenotype> protoConnections = connections.stream()
+        .map(ConnectionGenotype::toProto)
+        .collect(Collectors.toList());
+
+    return Genotypes.NetworkGenotype.newBuilder()
+        .addAllNeurons(protoNeurons)
+        .addAllConnections(protoConnections)
+        .build();
   }
 
   public List<NeuronGenotype> getNeurons() {

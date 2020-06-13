@@ -2,6 +2,7 @@ package jwblangley.neat.genotype;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import jwblangley.neat.proto.Genotypes;
 
 /**
  * Genotype representing a neuron
@@ -36,6 +37,26 @@ public class NeuronGenotype {
    */
   public NeuronGenotype(NeuronGenotype toCopy) {
     this(toCopy.layer, toCopy.uid);
+  }
+
+  public Genotypes.NeuronGenotype toProto() {
+    return Genotypes.NeuronGenotype.newBuilder()
+        .setUid(uid)
+        .setLayer(layerToProto(layer))
+        .build();
+  }
+
+  private static Genotypes.NeuronGenotype.NeuronLayer layerToProto(NeuronLayer layer) {
+    if (layer == NeuronLayer.INPUT) {
+      return Genotypes.NeuronGenotype.NeuronLayer.INPUT;
+    }
+    if (layer == NeuronLayer.HIDDEN) {
+      return Genotypes.NeuronGenotype.NeuronLayer.HIDDEN;
+    }
+    if (layer == NeuronLayer.OUTPUT) {
+      return Genotypes.NeuronGenotype.NeuronLayer.OUTPUT;
+    }
+    throw new IllegalArgumentException("Invalid neuron layer");
   }
 
   public NeuronLayer getLayer() {
