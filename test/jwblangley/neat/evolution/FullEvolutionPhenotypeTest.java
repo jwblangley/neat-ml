@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
+import jwblangley.neat.genotype.NetworkGenotype;
 import jwblangley.neat.phenotype.Network;
 import org.junit.Test;
 
@@ -12,6 +13,10 @@ public class FullEvolutionPhenotypeTest {
 
   @Test
   public void neatCanLearnXor() {
+    networkLearnsXor();
+  }
+
+  public static NetworkGenotype networkLearnsXor() {
     Random random = new Random(100);
     // Inner random so NEAT is deterministic with the previous random
     Random innerRandom = new Random(100);
@@ -54,8 +59,9 @@ public class FullEvolutionPhenotypeTest {
     }
 
     // Test cases
+    NetworkGenotype fittestGenotype = evolution.getFittestGenotype();
     Network bestNetwork = Network
-        .createSigmoidOutputNetworkFromGenotype(evolution.getFittestGenotype());
+        .createSigmoidOutputNetworkFromGenotype(fittestGenotype);
     final boolean ff = bestNetwork.calculateOutputs(0d, 0d).get(0) > 0.5;
     final boolean ft = bestNetwork.calculateOutputs(0d, 1d).get(0) > 0.5;
     final boolean tf = bestNetwork.calculateOutputs(1d, 0d).get(0) > 0.5;
@@ -65,6 +71,8 @@ public class FullEvolutionPhenotypeTest {
     assertTrue(ft);
     assertTrue(tf);
     assertFalse(tt);
+
+    return fittestGenotype;
   }
 
   @Test
