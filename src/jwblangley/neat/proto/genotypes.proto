@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package jwblangley.neat.proto;
+
+message NetworkGenotype {
+  repeated NeuronGenotype neurons = 1;
+  repeated ConnectionGenotype connections = 2;
+}
+
+message NeuronGenotype {
+  int32 uid = 1;
+
+  enum NeuronLayer {
+    INPUT = 0;
+    HIDDEN = 1;
+    OUTPUT = 2;
+  }
+
+  NeuronLayer layer = 2;
+}
+
+message ConnectionGenotype {
+  int32 neuronUidFrom = 1;
+  int32 neuronUidTo = 2;
+  int32 innovationMarker = 3;
+  double weight = 4;
+  bool enabled = 5;
+}
