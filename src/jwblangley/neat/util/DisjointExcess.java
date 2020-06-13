@@ -4,8 +4,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Utility class for calculating the number of excess and disjoint integers two lists of integers
+ */
 public class DisjointExcess {
 
+  /**
+   * Calculate the number of excess and disjoint integers between two lists of integers
+   *
+   * @param xs the first list of integers
+   * @param ys the second list of integers
+   * @return <disjoints, excesses> pair corresponding to the number of disjoint and excess integers
+   * between the two lists
+   */
   public static ImmutableHomogeneousPair<Integer> calculate(List<Integer> xs, List<Integer> ys) {
     // Don't modify original lists
     xs = new ArrayList<>(xs);

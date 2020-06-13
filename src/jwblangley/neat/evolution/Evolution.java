@@ -12,6 +12,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import jwblangley.neat.genotype.NetworkGenotype;
 
+/**
+ * Class to control the evolution and growth of neural network at the core of the NEAT algorithm
+ */
 public class Evolution {
 
   private static final double COMPATIBILITY_DISTANCE_THRESHOLD = 10d;
