@@ -14,7 +14,7 @@ public class DisjointExcess {
    *
    * @param xs the first list of integers
    * @param ys the second list of integers
-   * @return <disjoints, excesses> pair corresponding to the number of disjoint and excess integers
+   * @return (disjoints, excesses) pair corresponding to the number of disjoint and excess integers
    * between the two lists
    */
   public static ImmutableHomogeneousPair<Integer> calculate(List<Integer> xs, List<Integer> ys) {
