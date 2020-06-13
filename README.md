@@ -45,8 +45,10 @@ public class LearnXor {
 
           // Now that a network has been created, evaluate it however you see fit!
           // To prevent over-fitting to a particular problem, we want to actually evaluate it 
-          // several times against randomised input and aggregate a score. (For XOR there are only
-          // 4 possible combinations, but this is a good habit to get into for the general case)
+          // several times and aggregate a score (For XOR there are only 4 possible combinations,
+          // but this is a good habit to get into for the general case).
+          // N.B: If you are trying to solve a non-generalised problem, this is not needed
+          // e.g. solving a particular game level that is deterministic (has no random elements)
           int numCorrect = 0;
           for (int i = 0; i < 5; i++) {
             final double a = Math.round(random.nextDouble());
