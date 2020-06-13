@@ -45,12 +45,12 @@ public class LearnXor {
 
           // Now that a network has been created, evaluate it however you see fit!
           // To prevent over-fitting to a particular problem, we want to actually evaluate it 
-          // several times and aggregate a score. (For XOR there are only 4 possible combinations,
-          // but this is a good habbit to get into for the general case)
+          // several times against randomised input and aggregate a score. (For XOR there are only
+          // 4 possible combinations, but this is a good habit to get into for the general case)
           int numCorrect = 0;
-          for (int i = 0; i < testsInEvaluate; i++) {
-            final double a = Math.round(innerRandom.nextDouble());
-            final double b = Math.round(innerRandom.nextDouble());
+          for (int i = 0; i < 5; i++) {
+            final double a = Math.round(random.nextDouble());
+            final double b = Math.round(random.nextDouble());
 
             // This is as simple as it is to get the output from your neural network!
             // We get the 0th index item as we want the first (and in this case only) output
