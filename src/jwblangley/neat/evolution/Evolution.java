@@ -10,12 +10,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 import jwblangley.neat.genotype.NetworkGenotype;
+import jwblangley.neat.proto.EvolutionOuterClass;
+import jwblangley.neat.proto.Genotypes;
+import jwblangley.neat.proto.ProtoEquivalent;
 
 /**
  * Class to control the evolution and growth of neural network at the core of the NEAT algorithm
  */
-public class Evolution {
+public class Evolution implements ProtoEquivalent {
 
   private static final double INITIAL_COMPATIBILITY_DISTANCE_THRESHOLD = 10d;
   private static final double COMPATIBILITY_MODIFIER = 1.7d;
@@ -84,9 +88,31 @@ public class Evolution {
   }
 
   /**
-   * Set verbose mode. In verbose mode, generation number, highest fitness and number of species
-   * are reported to stdout after each generation is evaluated.
-   * Verbose mode is initially disabled
+   * Create a protobuf object of this Evolution object
+   *
+   * @return the protobuf object
+   */
+  @Override
+  public EvolutionOuterClass.Evolution toProto() {
+    List<Genotypes.NetworkGenotype> protoCurrentGen = currentGeneration.stream()
+        .map(NetworkGenotype::toProto)
+        .collect(Collectors.toList());
+    /*
+     N.B: we increment the innovation generator here, but this has no adverse side affects.
+     It just resembles an innovation where nothing happened
+     */
+
+    return EvolutionOuterClass.Evolution.newBuilder()
+        .addAllCurrentGeneration(protoCurrentGen)
+        .setGenerationNumber(generationNumber)
+        .setCurrentInnovationMarker(innovationGenerator.next())
+        .setCompatibilityDistanceThreshold(compatibilityDistanceThreshold)
+        .build();
+  }
+
+  /**
+   * Set verbose mode. In verbose mode, generation number, highest fitness and number of species are
+   * reported to stdout after each generation is evaluated. Verbose mode is initially disabled
    *
    * @param verbose whether verbose mode should be enabled
    */
