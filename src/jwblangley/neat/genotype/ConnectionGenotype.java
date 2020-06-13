@@ -2,11 +2,12 @@ package jwblangley.neat.genotype;
 
 import java.util.Objects;
 import jwblangley.neat.proto.Genotypes;
+import jwblangley.neat.proto.ProtoEquivalent;
 
 /**
  * Genotype representing a connection between two neurons
  */
-public class ConnectionGenotype {
+public class ConnectionGenotype implements ProtoEquivalent {
 
   private final int neuronFrom;
   private final int neuronTo;
@@ -74,6 +75,7 @@ public class ConnectionGenotype {
    *
    * @return the protobuf object
    */
+  @Override
   public Genotypes.ConnectionGenotype toProto() {
     return Genotypes.ConnectionGenotype.newBuilder()
         .setNeuronUidFrom(neuronFrom)

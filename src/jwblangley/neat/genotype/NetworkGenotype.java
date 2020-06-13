@@ -10,13 +10,14 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import jwblangley.neat.evolution.InnovationGenerator;
 import jwblangley.neat.proto.Genotypes;
+import jwblangley.neat.proto.ProtoEquivalent;
 import jwblangley.neat.util.DisjointExcess;
 import jwblangley.neat.util.ImmutableHomogeneousPair;
 
 /**
  * Genotype representing a neural network
  */
-public class NetworkGenotype {
+public class NetworkGenotype implements ProtoEquivalent {
 
   /**
    * Constant for compatibility distance calculation weighting the relative importance of excess
@@ -84,6 +85,7 @@ public class NetworkGenotype {
    *
    * @return the protobuf object
    */
+  @Override
   public Genotypes.NetworkGenotype toProto() {
     List<Genotypes.NeuronGenotype> protoNeurons = neurons.stream()
         .map(NeuronGenotype::toProto)

@@ -3,11 +3,12 @@ package jwblangley.neat.genotype;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import jwblangley.neat.proto.Genotypes;
+import jwblangley.neat.proto.ProtoEquivalent;
 
 /**
  * Genotype representing a neuron
  */
-public class NeuronGenotype {
+public class NeuronGenotype implements ProtoEquivalent {
 
   private final static AtomicInteger uidGenerator = new AtomicInteger();
 
@@ -53,6 +54,7 @@ public class NeuronGenotype {
    *
    * @return the protobuf object
    */
+  @Override
   public Genotypes.NeuronGenotype toProto() {
     return Genotypes.NeuronGenotype.newBuilder()
         .setUid(uid)
