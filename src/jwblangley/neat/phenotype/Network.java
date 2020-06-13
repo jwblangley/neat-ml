@@ -29,21 +29,21 @@ public class Network {
   }
 
   /**
-   * Creates a new neural network for solving regression problems from a given NetworkGenotype.
-   * Input and Hidden neurons use ReLu for activation whilst Output neurons use a linear activation
-   * function to ensure a full range
+   * Creates a new neural network for solving regression or other linear output problems from a
+   * given NetworkGenotype. Input and Hidden neurons use ReLu for activation whilst Output neurons
+   * use a linear activation function to ensure a full range
    *
    * @param genotype genotype to build phenotype from
    * @return constructed neural network (phenotype)
    */
-  public static Network createRegressionNetworkFromGenotype(NetworkGenotype genotype) {
+  public static Network createLinearOutputNetworkFromGenotype(NetworkGenotype genotype) {
     return createNetworkFromGenotype(genotype, Activation.LINEAR);
   }
 
   /**
-   * Creates a new neural network for solving various optimisation problems from a given
-   * NetworkGenotype. Input and Hidden neurons use ReLu for activation whilst Output neurons use
-   * sigmoid for activation.
+   * Creates a new neural network for solving various optimisation problems with sigmoid output from
+   * a given NetworkGenotype. Input and Hidden neurons use ReLu for activation whilst Output neurons
+   * use sigmoid for activation.
    *
    * @param genotype genotype to build phenotype from
    * @return constructed neural network (phenotype)

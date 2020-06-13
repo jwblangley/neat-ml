@@ -17,6 +17,7 @@ public class EvolutionTest {
     final double tolerance = 0.01;
     final int numGenerations = 100;
     final int populationSize = 100;
+    final int targetNumSpecies = 5;
 
     Random random = new Random(100);
 
@@ -38,7 +39,8 @@ public class EvolutionTest {
         new ConnectionGenotype(input2.getUid(), output.getUid(), innovationCounter.next(), 0.5,
             true));
 
-    Evolution evolution = new Evolution(populationSize, network, innovationCounter, 1, geno -> {
+    Evolution evolution = new Evolution(populationSize, targetNumSpecies, network,
+        innovationCounter, 1, geno -> {
       double weightSum = 0;
       for (ConnectionGenotype connection : geno.getConnections()) {
         if (connection.isEnabled()) {
@@ -51,11 +53,10 @@ public class EvolutionTest {
 
     double weightSum = 0;
 
+    evolution.setVerbose(true);
     for (int i = 1; i <= numGenerations; i++) {
+      System.out.println("Generation: " + i);
       evolution.evolve(random);
-      System.out.print("Generation: " + i);
-      System.out.print("\tHighest fitness: " + evolution.getHighestFitness());
-      System.out.print("\tNumber of species: " + evolution.getNumberOfSpecies());
 
       weightSum = 0;
       for (ConnectionGenotype connection : evolution.getFittestGenotype().getConnections()) {
@@ -63,7 +64,8 @@ public class EvolutionTest {
           weightSum += Math.abs(connection.getWeight());
         }
       }
-      System.out.println("\tWeight sum: " + weightSum);
+      System.out.println("Weight sum: " + weightSum);
+      System.out.println();
     }
 
     assertEquals(target, weightSum, tolerance);
@@ -80,6 +82,7 @@ public class EvolutionTest {
     final double tolerance = 0.01;
     final int numGenerations = 100;
     final int populationSize = 100;
+    final int targetNumSpecies = 5;
     final int numThreads = 100;
 
     Random random = new Random(100);
@@ -102,25 +105,25 @@ public class EvolutionTest {
         new ConnectionGenotype(input2.getUid(), output.getUid(), innovationCounter.next(), 0.5,
             true));
 
-    Evolution evolution = new Evolution(populationSize, network, innovationCounter, numThreads,
-        geno -> {
-          double weightSum = 0;
-          for (ConnectionGenotype connection : geno.getConnections()) {
-            if (connection.isEnabled()) {
-              weightSum += Math.abs(connection.getWeight());
-            }
-          }
-          double difference = Math.abs(weightSum - target);
-          return (1000d / difference);
-        });
+    Evolution evolution = new Evolution(
+        populationSize, targetNumSpecies, network, innovationCounter, numThreads, geno -> {
+
+      double weightSum = 0;
+      for (ConnectionGenotype connection : geno.getConnections()) {
+        if (connection.isEnabled()) {
+          weightSum += Math.abs(connection.getWeight());
+        }
+      }
+      double difference = Math.abs(weightSum - target);
+      return (1000d / difference);
+    });
 
     double weightSum = 0;
 
+    evolution.setVerbose(true);
     for (int i = 1; i <= numGenerations; i++) {
+      System.out.println("Generation: " + i);
       evolution.evolve(random);
-      System.out.print("Generation: " + i);
-      System.out.print("\tHighest fitness: " + evolution.getHighestFitness());
-      System.out.print("\tNumber of species: " + evolution.getNumberOfSpecies());
 
       weightSum = 0;
       for (ConnectionGenotype connection : evolution.getFittestGenotype().getConnections()) {
@@ -128,7 +131,8 @@ public class EvolutionTest {
           weightSum += Math.abs(connection.getWeight());
         }
       }
-      System.out.println("\tWeight sum: " + weightSum);
+      System.out.println("Weight sum: " + weightSum);
+      System.out.println();
     }
 
     assertEquals(target, weightSum, tolerance);

@@ -18,6 +18,9 @@ import jwblangley.neat.genotype.NetworkGenotype;
 import jwblangley.neat.genotype.NeuronGenotype;
 import jwblangley.neat.genotype.NeuronLayer;
 
+/**
+ * Class holding static implementation methods for visualising neural networks (genotypes)
+ */
 public class Visualiser {
 
   private static final int INITIAL_IMAGE_SIZE = 1024;

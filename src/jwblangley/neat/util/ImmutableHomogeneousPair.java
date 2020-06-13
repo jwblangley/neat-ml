@@ -1,5 +1,10 @@
 package jwblangley.neat.util;
 
+/**
+ * An immutable homogeneous pair
+ *
+ * @param <T> Type of pair
+ */
 public class ImmutableHomogeneousPair<T> {
 
   private final T first;

@@ -12,9 +12,13 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import jwblangley.neat.genotype.NetworkGenotype;
 
+/**
+ * Class to control the evolution and growth of neural network at the core of the NEAT algorithm
+ */
 public class Evolution {
 
-  private static final double COMPATIBILITY_DISTANCE_THRESHOLD = 10d;
+  private static final double INITIAL_COMPATIBILITY_DISTANCE_THRESHOLD = 10d;
+  private static final double COMPATIBILITY_MODIFIER = 1.7d;
   public static final double WEIGHT_MUTATION_RATE = 0.5f;
   public static final double ADD_CONNECTION_MUTATION_RATE = 0.1f;
   public static final double ADD_NEURON_MUTATION_RATE = 0.1f;
@@ -23,13 +27,17 @@ public class Evolution {
   private final Evaluator evaluator;
   private final int numThreads;
   private final int populationSize;
+  private final int targetNumSpecies;
   private final InnovationGenerator innovationGenerator;
 
   private final List<Species> allSpecies;
   private List<NetworkGenotype> currentGeneration;
 
+  private double compatibilityDistanceThreshold;
+
   private double highestFitness;
   private NetworkGenotype fittestGenotype;
+  private boolean verbose = false;
 
   private final Map<NetworkGenotype, Species> genotypeSpeciesMap;
   /**
@@ -47,13 +55,19 @@ public class Evolution {
    * @param evaluator           Function to simulate and evaluate a single genotype
    * @param numThreads          Number of concurrent threads to evaluate the population with
    */
-  public Evolution(int populationSize, NetworkGenotype startingGenotype,
+  public Evolution(int populationSize, int targetNumSpecies, NetworkGenotype startingGenotype,
       InnovationGenerator innovationGenerator, int numThreads, Evaluator evaluator) {
 
+    assert populationSize > 1;
+    assert targetNumSpecies > 1;
+    assert targetNumSpecies < populationSize;
+
     this.populationSize = populationSize;
+    this.targetNumSpecies = targetNumSpecies;
     this.innovationGenerator = innovationGenerator;
     this.evaluator = evaluator;
     this.numThreads = numThreads;
+    this.compatibilityDistanceThreshold = INITIAL_COMPATIBILITY_DISTANCE_THRESHOLD;
 
     // Initialise population
     currentGeneration = new ArrayList<>(populationSize);
@@ -65,6 +79,16 @@ public class Evolution {
     genotypeSpeciesMap = new HashMap<>();
     genotypeFitnessMap = new HashMap<>();
     allSpecies = new ArrayList<>();
+  }
+
+  /**
+   * Set verbose mode. In verbose mode, highest fitness and number of species is reported to stdout
+   * after each generation is evaluated. Verbose mode is initially disabled
+   *
+   * @param verbose whether verbose mode should be enabled
+   */
+  public void setVerbose(boolean verbose) {
+    this.verbose = verbose;
   }
 
   /**
@@ -92,7 +116,9 @@ public class Evolution {
    * Sort a generation into species, evaluate each member of the generation, kill off weaker
    * members, generate child members from surviving members repopulate generation
    *
-   * @param random seeded Random object
+   * @param random seeded Random object. If you care about seeded behaviour, do not use the same
+   *               random object here as in you evaluator. Due to thread pooling that will yield
+   *               inconsistent results.
    */
   public void evolve(Random random) {
     // Reset all stats before next generation evaluation
@@ -104,7 +130,7 @@ public class Evolution {
 
       for (Species species : allSpecies) {
         if (NetworkGenotype.compatibilityDistance(genotype, species.getMascot())
-            < COMPATIBILITY_DISTANCE_THRESHOLD) {
+            < compatibilityDistanceThreshold) {
           species.addMember(genotype);
           genotypeSpeciesMap.put(genotype, species);
           foundSpecies = true;
@@ -122,16 +148,28 @@ public class Evolution {
     // Remove any dormant species
     allSpecies.removeIf(s -> s.getMembers().isEmpty());
 
+    // Adjust compatibility distance threshold to achieve number of species
+    // Unlike most implementations, I use an exponential growth / shrink to ensure this can keep up
+    if (allSpecies.size() < targetNumSpecies) {
+      compatibilityDistanceThreshold /= COMPATIBILITY_MODIFIER;
+    } else if (allSpecies.size() > targetNumSpecies) {
+      compatibilityDistanceThreshold *= COMPATIBILITY_MODIFIER;
+    }
+    // Ensure minimum
+    compatibilityDistanceThreshold = Math
+        .max(COMPATIBILITY_MODIFIER, compatibilityDistanceThreshold);
+
     // Evaluate each genotype and assign its fitness
     final ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
     final Lock criticalLock = new ReentrantLock();
     for (NetworkGenotype genotype : currentGeneration) {
       threadPool.execute(() -> {
-        // Read-only
-        Species genotypesSpecies = genotypeSpeciesMap.get(genotype);
 
         // Simulate the genotype and evaluate fitness
         final double fitness = evaluator.evaluate(genotype);
+
+        // Read-only
+        Species genotypesSpecies = genotypeSpeciesMap.get(genotype);
 
         // Adjust fitness by species size to prevent elitism. genotypeSpecies.size() is read-only
         final double adjustedFitness = fitness / ((double) genotypesSpecies.size());
@@ -156,6 +194,12 @@ public class Evolution {
       threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
     } catch (InterruptedException e) {
       System.err.println("Waiting for thread pool execution to finish, outlasted the universe");
+    }
+
+    // Report generation statistics
+    if (verbose) {
+      System.out.println("Highest fitness: " + getHighestFitness());
+      System.out.println("Number of species: " + getNumberOfSpecies());
     }
 
     // Sort all species
