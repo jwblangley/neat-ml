@@ -156,7 +156,8 @@ public class Evolution {
       compatibilityDistanceThreshold *= COMPATIBILITY_MODIFIER;
     }
     // Ensure minimum
-    compatibilityDistanceThreshold = Math.max(COMPATIBILITY_MODIFIER, compatibilityDistanceThreshold);
+    compatibilityDistanceThreshold = Math
+        .max(COMPATIBILITY_MODIFIER, compatibilityDistanceThreshold);
 
     // Evaluate each genotype and assign its fitness
     final ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);

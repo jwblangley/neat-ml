@@ -105,17 +105,18 @@ public class EvolutionTest {
         new ConnectionGenotype(input2.getUid(), output.getUid(), innovationCounter.next(), 0.5,
             true));
 
-    Evolution evolution = new Evolution(populationSize, targetNumSpecies, network,
-        innovationCounter, numThreads, geno -> {
-          double weightSum = 0;
-          for (ConnectionGenotype connection : geno.getConnections()) {
-            if (connection.isEnabled()) {
-              weightSum += Math.abs(connection.getWeight());
-            }
-          }
-          double difference = Math.abs(weightSum - target);
-          return (1000d / difference);
-        });
+    Evolution evolution = new Evolution(
+        populationSize, targetNumSpecies, network, innovationCounter, numThreads, geno -> {
+
+      double weightSum = 0;
+      for (ConnectionGenotype connection : geno.getConnections()) {
+        if (connection.isEnabled()) {
+          weightSum += Math.abs(connection.getWeight());
+        }
+      }
+      double difference = Math.abs(weightSum - target);
+      return (1000d / difference);
+    });
 
     double weightSum = 0;
 
