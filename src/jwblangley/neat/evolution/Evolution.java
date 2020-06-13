@@ -90,14 +90,15 @@ public class Evolution implements ProtoEquivalent {
 
   /**
    * Create a new Evolution object from a protobuf object
+   * At least one call to evolve on the new object must happen before statistics are available
    *
-   * @param protoEvolution protobuf object to create from
+   * @param protoEvolution   protobuf object to create from
    * @param targetNumSpecies number of targeted species in the population
-   * @param numThreads Number of concurrent threads to evaluate the population with
-   * @param evaluator Function to simulate and evaluate a single genotype
+   * @param numThreads       Number of concurrent threads to evaluate the population with
+   * @param evaluator        Function to simulate and evaluate a single genotype
    */
   public Evolution(EvolutionOuterClass.Evolution protoEvolution, int targetNumSpecies,
-       int numThreads, Evaluator evaluator) {
+      int numThreads, Evaluator evaluator) {
 
     this.populationSize = protoEvolution.getCurrentGenerationList().size();
     this.generationNumber = protoEvolution.getGenerationNumber();
