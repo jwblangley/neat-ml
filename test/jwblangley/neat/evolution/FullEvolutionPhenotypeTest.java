@@ -4,9 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Random;
 import jwblangley.neat.genotype.NetworkGenotype;
 import jwblangley.neat.phenotype.Network;
+import jwblangley.neat.visualiser.Visualiser;
 import org.junit.Test;
 
 public class FullEvolutionPhenotypeTest {
@@ -40,7 +43,13 @@ public class FullEvolutionPhenotypeTest {
 
   @Test
   public void neatCanLearnXor() {
-    networkLearnsXor();
+    final boolean visualise = true;
+    Evolution evolution = networkLearnsXor();
+
+    if (visualise) {
+      BufferedImage image = Visualiser.visualiseNetwork(evolution.getFittestGenotype());
+      Visualiser.saveImageToFile(image, new File("xor.png"), true);
+    }
   }
 
   public static Evolution networkLearnsXor() {

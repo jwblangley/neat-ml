@@ -17,7 +17,7 @@ public class InnovationGenerator {
   }
 
   /**
-   * @param initial
+   * @param initial starting value for the Innovation generator
    */
   public InnovationGenerator(int initial) {
     this.atomicInteger = new AtomicInteger(initial);

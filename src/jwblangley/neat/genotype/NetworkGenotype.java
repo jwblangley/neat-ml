@@ -325,12 +325,13 @@ public class NetworkGenotype implements ProtoEquivalent {
   }
 
   /**
-   * Calculate how 'similar' two network genooypes are with the calculation: delta = (c_1 * E / N) +
+   * Calculate how 'similar' two network genotypes are with the calculation: delta = (c_1 * E / N) +
    * (c_2 * D / N) + c_3 * W_bar
    *
-   * @param first
-   * @param second
-   * @return compatibility distance between the two - greater -> more different
+   * @param first first NetworkGenotype
+   * @param second second NetworkGenotype
+   * @return compatibility distance between the two - greater compatibility implies greater
+   * difference between the two genotypes
    */
   public static double compatibilityDistance(NetworkGenotype first, NetworkGenotype second) {
     List<Integer> firstParentInnovations = first.getConnections().stream()
