@@ -65,6 +65,10 @@ public class NetworkGenotype {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Create a protobuf object of this Network
+   * @return the protobuf object
+   */
   public Genotypes.NetworkGenotype toProto() {
     List<Genotypes.NeuronGenotype> protoNeurons = neurons.stream()
         .map(NeuronGenotype::toProto)

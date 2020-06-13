@@ -54,6 +54,10 @@ public class ConnectionGenotype {
     );
   }
 
+  /**
+   * Create a protobuf object of this Connection
+   * @return the protobuf object
+   */
   public Genotypes.ConnectionGenotype toProto() {
     return Genotypes.ConnectionGenotype.newBuilder()
         .setNeuronUidFrom(neuronFrom)

@@ -39,6 +39,10 @@ public class NeuronGenotype {
     this(toCopy.layer, toCopy.uid);
   }
 
+  /**
+   * Create a protobuf object of this Neuron
+   * @return the protobuf object
+   */
   public Genotypes.NeuronGenotype toProto() {
     return Genotypes.NeuronGenotype.newBuilder()
         .setUid(uid)
