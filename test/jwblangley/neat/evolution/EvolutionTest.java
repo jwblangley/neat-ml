@@ -17,6 +17,7 @@ public class EvolutionTest {
     final double tolerance = 0.01;
     final int numGenerations = 100;
     final int populationSize = 100;
+    final int targetNumSpecies = 5;
 
     Random random = new Random(100);
 
@@ -38,7 +39,8 @@ public class EvolutionTest {
         new ConnectionGenotype(input2.getUid(), output.getUid(), innovationCounter.next(), 0.5,
             true));
 
-    Evolution evolution = new Evolution(populationSize, network, innovationCounter, 1, geno -> {
+    Evolution evolution = new Evolution(populationSize, targetNumSpecies, network,
+        innovationCounter, 1, geno -> {
       double weightSum = 0;
       for (ConnectionGenotype connection : geno.getConnections()) {
         if (connection.isEnabled()) {
@@ -80,6 +82,7 @@ public class EvolutionTest {
     final double tolerance = 0.01;
     final int numGenerations = 100;
     final int populationSize = 100;
+    final int targetNumSpecies = 5;
     final int numThreads = 100;
 
     Random random = new Random(100);
@@ -102,8 +105,8 @@ public class EvolutionTest {
         new ConnectionGenotype(input2.getUid(), output.getUid(), innovationCounter.next(), 0.5,
             true));
 
-    Evolution evolution = new Evolution(populationSize, network, innovationCounter, numThreads,
-        geno -> {
+    Evolution evolution = new Evolution(populationSize, targetNumSpecies, network,
+        innovationCounter, numThreads, geno -> {
           double weightSum = 0;
           for (ConnectionGenotype connection : geno.getConnections()) {
             if (connection.isEnabled()) {
