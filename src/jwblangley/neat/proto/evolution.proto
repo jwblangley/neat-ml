@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package jwblangley.neat.proto;
+
+import "src/jwblangley/neat/proto/genotypes.proto";
+
+message Evolution {
+  repeated NetworkGenotype currentGeneration = 1;
+  int32 currentInnovationMarker = 2;
+  double compatibilityDistanceThreshold = 3;
+}
