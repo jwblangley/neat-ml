@@ -28,7 +28,9 @@ public class Evolution implements ProtoEquivalent {
   public static final double ADD_NEURON_MUTATION_RATE = 0.1f;
   public static final int ADD_CONNECTION_ATTEMPTS = 10;
 
-  private final Evaluator evaluator;
+  private final SingleEvaluator singleEvaluator;
+  private final BulkEvaluator bulkEvaluator;
+
   private final int numThreads;
   private final int populationSize;
   private final int targetNumSpecies;
@@ -50,19 +52,40 @@ public class Evolution implements ProtoEquivalent {
    */
   private final Map<NetworkGenotype, Double> genotypeFitnessMap;
 
-
   /**
-   * Construct a new Evolution object
+   * Construct a new Evolution object with single evaluator
    *
    * @param populationSize      size of the population for each generation
    * @param targetNumSpecies    number of targeted species in the population
    * @param startingGenotype    genotype for the initial population to be filled with
    * @param innovationGenerator Generator for innovation markers
-   * @param evaluator           Function to simulate and evaluate a single genotype
+   * @param singleEvaluator     Function to simulate and evaluate a single genotype
    * @param numThreads          Number of concurrent threads to evaluate the population with
    */
   public Evolution(int populationSize, int targetNumSpecies, NetworkGenotype startingGenotype,
-      InnovationGenerator innovationGenerator, int numThreads, Evaluator evaluator) {
+      InnovationGenerator innovationGenerator, int numThreads, SingleEvaluator singleEvaluator) {
+    this(populationSize, targetNumSpecies, startingGenotype, innovationGenerator, numThreads,
+        singleEvaluator, null);
+  }
+
+  /**
+   * Construct a new Evolution object with bulk evaluator
+   *
+   * @param populationSize      size of the population for each generation
+   * @param targetNumSpecies    number of targeted species in the population
+   * @param startingGenotype    genotype for the initial population to be filled with
+   * @param innovationGenerator Generator for innovation markers
+   * @param bulkEvaluator       Function to simulate and evaluate a list of genotypes
+   */
+  public Evolution(int populationSize, int targetNumSpecies, NetworkGenotype startingGenotype,
+      InnovationGenerator innovationGenerator, BulkEvaluator bulkEvaluator) {
+    this(populationSize, targetNumSpecies, startingGenotype, innovationGenerator, -1,
+        null, bulkEvaluator);
+  }
+
+  private Evolution(int populationSize, int targetNumSpecies, NetworkGenotype startingGenotype,
+      InnovationGenerator innovationGenerator, int numThreads,
+      SingleEvaluator singleEvaluator, BulkEvaluator bulkEvaluator) {
 
     assert populationSize > 1;
     assert targetNumSpecies > 1;
@@ -72,7 +95,8 @@ public class Evolution implements ProtoEquivalent {
     this.generationNumber = 0;
     this.targetNumSpecies = targetNumSpecies;
     this.innovationGenerator = innovationGenerator;
-    this.evaluator = evaluator;
+    this.singleEvaluator = singleEvaluator;
+    this.bulkEvaluator = bulkEvaluator;
     this.numThreads = numThreads;
     this.compatibilityDistanceThreshold = INITIAL_COMPATIBILITY_DISTANCE_THRESHOLD;
 
@@ -89,22 +113,41 @@ public class Evolution implements ProtoEquivalent {
   }
 
   /**
-   * Create a new Evolution object from a protobuf object
-   * At least one call to evolve on the new object must happen before statistics are available
+   * Create a new Evolution object from a protobuf object At least one call to evolve on the new
+   * object must happen before statistics are available
    *
    * @param protoEvolution   protobuf object to create from
    * @param targetNumSpecies number of targeted species in the population
    * @param numThreads       Number of concurrent threads to evaluate the population with
-   * @param evaluator        Function to simulate and evaluate a single genotype
+   * @param singleEvaluator  Function to simulate and evaluate a single genotype
    */
   public Evolution(EvolutionOuterClass.Evolution protoEvolution, int targetNumSpecies,
-      int numThreads, Evaluator evaluator) {
+      int numThreads, SingleEvaluator singleEvaluator) {
+    this(protoEvolution, targetNumSpecies, numThreads, singleEvaluator, null);
+  }
+
+  /**
+   * Create a new Evolution object from a protobuf object At least one call to evolve on the new
+   * object must happen before statistics are available
+   *
+   * @param protoEvolution   protobuf object to create from
+   * @param targetNumSpecies number of targeted species in the population
+   * @param bulkEvaluator    Function to simulate and evaluate a list of genotypes
+   */
+  public Evolution(EvolutionOuterClass.Evolution protoEvolution, int targetNumSpecies,
+      BulkEvaluator bulkEvaluator) {
+    this(protoEvolution, targetNumSpecies, -1, null, bulkEvaluator);
+  }
+
+  private Evolution(EvolutionOuterClass.Evolution protoEvolution, int targetNumSpecies,
+      int numThreads, SingleEvaluator singleEvaluator, BulkEvaluator bulkEvaluator) {
 
     this.populationSize = protoEvolution.getCurrentGenerationList().size();
     this.generationNumber = protoEvolution.getGenerationNumber();
     this.targetNumSpecies = targetNumSpecies;
     this.innovationGenerator = new InnovationGenerator(protoEvolution.getCurrentInnovationMarker());
-    this.evaluator = evaluator;
+    this.singleEvaluator = singleEvaluator;
+    this.bulkEvaluator = bulkEvaluator;
     this.numThreads = numThreads;
     this.compatibilityDistanceThreshold = protoEvolution.getCompatibilityDistanceThreshold();
 
@@ -226,22 +269,54 @@ public class Evolution implements ProtoEquivalent {
         .max(COMPATIBILITY_MODIFIER, compatibilityDistanceThreshold);
 
     // Evaluate each genotype and assign its fitness
-    final ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
-    final Lock criticalLock = new ReentrantLock();
-    for (NetworkGenotype genotype : currentGeneration) {
-      threadPool.execute(() -> {
+    if (singleEvaluator != null) {
+      final ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
+      final Lock criticalLock = new ReentrantLock();
+      for (NetworkGenotype genotype : currentGeneration) {
+        threadPool.execute(() -> {
 
-        // Simulate the genotype and evaluate fitness
-        final double fitness = evaluator.evaluate(genotype);
+          // Simulate the genotype and evaluate fitness
+          final double fitness = singleEvaluator.evaluate(genotype);
 
-        // Read-only
+          // Read-only
+          Species genotypesSpecies = genotypeSpeciesMap.get(genotype);
+
+          // Adjust fitness by species size to prevent elitism. genotypeSpecies.size() is read-only
+          final double adjustedFitness = fitness / ((double) genotypesSpecies.size());
+
+          // Critical section
+          criticalLock.lock();
+          genotypeFitnessMap.put(genotype, adjustedFitness);
+
+          // Store highest fitness
+          if (fitness > highestFitness) {
+            highestFitness = fitness;
+            fittestGenotype = genotype;
+          }
+          criticalLock.unlock();
+        });
+      }
+
+      // Accept no more tasks
+      threadPool.shutdown();
+      // Wait until thread pool execution is finished
+      try {
+        threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+      } catch (InterruptedException e) {
+        System.err.println("Waiting for thread pool execution to finish, outlasted the universe");
+      }
+    } else if (bulkEvaluator != null) {
+      List<Double> fitnesses = bulkEvaluator.evaluate(currentGeneration);
+      // N.B: assuming fitnesses in same order as currentGeneration
+      for (int i = 0; i < currentGeneration.size(); i++) {
+        NetworkGenotype genotype = currentGeneration.get(i);
+        double fitness = fitnesses.get(i);
+
         Species genotypesSpecies = genotypeSpeciesMap.get(genotype);
 
-        // Adjust fitness by species size to prevent elitism. genotypeSpecies.size() is read-only
+        // Adjust fitness by species size to prevent elitism.
         final double adjustedFitness = fitness / ((double) genotypesSpecies.size());
 
-        // Critical section
-        criticalLock.lock();
         genotypeFitnessMap.put(genotype, adjustedFitness);
 
         // Store highest fitness
@@ -249,17 +324,9 @@ public class Evolution implements ProtoEquivalent {
           highestFitness = fitness;
           fittestGenotype = genotype;
         }
-        criticalLock.unlock();
-      });
-    }
-
-    // Accept no more tasks
-    threadPool.shutdown();
-    // Wait until thread pool execution is finished
-    try {
-      threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-    } catch (InterruptedException e) {
-      System.err.println("Waiting for thread pool execution to finish, outlasted the universe");
+      }
+    } else {
+      throw new RuntimeException("Both single and bulk evaluators are undefined");
     }
 
     // Report generation statistics

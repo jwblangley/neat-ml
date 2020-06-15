@@ -328,7 +328,7 @@ public class NetworkGenotype implements ProtoEquivalent {
    * Calculate how 'similar' two network genotypes are with the calculation: delta = (c_1 * E / N) +
    * (c_2 * D / N) + c_3 * W_bar
    *
-   * @param first first NetworkGenotype
+   * @param first  first NetworkGenotype
    * @param second second NetworkGenotype
    * @return compatibility distance between the two - greater compatibility implies greater
    * difference between the two genotypes

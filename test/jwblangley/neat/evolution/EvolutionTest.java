@@ -3,6 +3,7 @@ package jwblangley.neat.evolution;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Random;
+import java.util.stream.Collectors;
 import jwblangley.neat.genotype.ConnectionGenotype;
 import jwblangley.neat.genotype.NetworkGenotype;
 import jwblangley.neat.genotype.NeuronGenotype;
@@ -50,6 +51,67 @@ public class EvolutionTest {
       double difference = Math.abs(weightSum - target);
       return (1000d / difference);
     });
+
+    double weightSum = 0;
+
+    evolution.setVerbose(true);
+    for (int i = 1; i <= numGenerations; i++) {
+      evolution.evolve(random);
+
+      weightSum = 0;
+      for (ConnectionGenotype connection : evolution.getFittestGenotype().getConnections()) {
+        if (connection.isEnabled()) {
+          weightSum += Math.abs(connection.getWeight());
+        }
+      }
+      System.out.println("Weight sum: " + weightSum);
+      System.out.println();
+    }
+
+    assertEquals(target, weightSum, tolerance);
+  }
+
+  @Test
+  public void evolveWeightSumToOneHundredBulk() {
+    final int target = 100;
+    final double tolerance = 0.01;
+    final int numGenerations = 100;
+    final int populationSize = 100;
+    final int targetNumSpecies = 5;
+
+    Random random = new Random(100);
+
+    InnovationGenerator innovationCounter = new InnovationGenerator();
+
+    // Example starting network
+    NetworkGenotype network = new NetworkGenotype();
+    NeuronGenotype input1 = new NeuronGenotype(NeuronLayer.INPUT);
+    network.addNeuron(input1);
+    NeuronGenotype input2 = new NeuronGenotype(NeuronLayer.INPUT);
+    network.addNeuron(input2);
+    NeuronGenotype output = new NeuronGenotype(NeuronLayer.OUTPUT);
+    network.addNeuron(output);
+
+    network.addConnection(
+        new ConnectionGenotype(input1.getUid(), output.getUid(), innovationCounter.next(), 0.5,
+            true));
+    network.addConnection(
+        new ConnectionGenotype(input2.getUid(), output.getUid(), innovationCounter.next(), 0.5,
+            true));
+
+    Evolution evolution = new Evolution(populationSize, targetNumSpecies, network,
+        innovationCounter, genos -> genos.stream()
+            .map(geno -> {
+              double weightSum = 0;
+              for (ConnectionGenotype connection : geno.getConnections()) {
+                if (connection.isEnabled()) {
+                  weightSum += Math.abs(connection.getWeight());
+                }
+              }
+              double difference = Math.abs(weightSum - target);
+              return (1000d / difference);
+            })
+            .collect(Collectors.toList()));
 
     double weightSum = 0;
 

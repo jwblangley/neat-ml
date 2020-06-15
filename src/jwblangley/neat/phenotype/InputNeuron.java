@@ -30,7 +30,7 @@ public class InputNeuron extends Neuron {
   /**
    * Throws UnsupportedOperationException
    *
-   * @param input -
+   * @param input          -
    * @param incomingWeight -
    */
   @Override
