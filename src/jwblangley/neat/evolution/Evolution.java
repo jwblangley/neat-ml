@@ -217,6 +217,13 @@ public class Evolution implements ProtoEquivalent {
   }
 
   /**
+   * @return the current generation number
+   */
+  public int getGenerationNumber() {
+    return generationNumber;
+  }
+
+  /**
    * Sort a generation into species, evaluate each member of the generation, kill off weaker
    * members, generate child members from surviving members repopulate generation
    *
