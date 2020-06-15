@@ -8,7 +8,7 @@ import jwblangley.neat.genotype.NetworkGenotype;
  * only if the genotype was strictly better at solving the problem to be optimised.
  */
 @FunctionalInterface
-public interface Evaluator {
+public interface SingleEvaluator {
 
   /**
    * Method to be implemented for the given optimisation that returns a fitness for a given

@@ -20,7 +20,7 @@ public class FullEvolutionPhenotypeTest {
   public static final int XOR_TARGET_NUM_SPECIES = 5;
   public static final int XOR_NUM_THREADS = 8;
   private static Random innerRandom = new Random();
-  public static final Evaluator XOR_EVALUATOR = networkGenotype -> {
+  public static final SingleEvaluator XOR_EVALUATOR = networkGenotype -> {
     Network network = Network.createSigmoidOutputNetworkFromGenotype(networkGenotype);
 
     int numCorrect = 0;

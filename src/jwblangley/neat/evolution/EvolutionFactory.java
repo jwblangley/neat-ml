@@ -27,12 +27,43 @@ public class EvolutionFactory {
    * @return Constructed Evolution object
    */
   public static Evolution createOptimisation(int numInputs, int numOutputs, int populationSize,
-      int targetNumSpecies, int numProcessingThreads, Evaluator evaluator) {
+      int targetNumSpecies, int numProcessingThreads, SingleEvaluator evaluator) {
 
     // Create starting genotype
-    final NetworkGenotype network = new NetworkGenotype();
-
     final InnovationGenerator innovationGenerator = new InnovationGenerator();
+    final NetworkGenotype network
+        = createStartingGenotype(numInputs, numOutputs, innovationGenerator);
+
+    return new Evolution(populationSize, targetNumSpecies, network, innovationGenerator,
+        numProcessingThreads, evaluator);
+  }
+
+  /**
+   * Factory method for creating a new Evolution object with pre-loaded information. Particularly
+   * the starting genotype is generated for you.
+   *
+   * @param numInputs            number of inputs for the optimisation problem
+   * @param numOutputs           number of outputs for the optimisation problem
+   * @param populationSize       size of the population to evolve
+   * @param targetNumSpecies     the targeted number of species in the population
+   * @param bulkEvaluator        bulk evaluator of genotypes
+   * @return Constructed Evolution object
+   */
+  public static Evolution createOptimisation(int numInputs, int numOutputs, int populationSize,
+      int targetNumSpecies, BulkEvaluator bulkEvaluator) {
+
+    // Create starting genotype
+    final InnovationGenerator innovationGenerator = new InnovationGenerator();
+    final NetworkGenotype network
+        = createStartingGenotype(numInputs, numOutputs, innovationGenerator);
+
+    return new Evolution(populationSize, targetNumSpecies, network, innovationGenerator,
+        bulkEvaluator);
+  }
+
+  private static NetworkGenotype createStartingGenotype(int numInputs, int numOutputs,
+      InnovationGenerator innovationGenerator) {
+    final NetworkGenotype network = new NetworkGenotype();
 
     final List<NeuronGenotype> inputNeurons = new ArrayList<>(numInputs);
     final List<NeuronGenotype> outputNeurons = new ArrayList<>(numOutputs);
@@ -59,9 +90,7 @@ public class EvolutionFactory {
         network.addConnection(connection);
       }
     }
-
-    return new Evolution(populationSize, targetNumSpecies, network, innovationGenerator,
-        numProcessingThreads, evaluator);
+    return network;
   }
 
 }
