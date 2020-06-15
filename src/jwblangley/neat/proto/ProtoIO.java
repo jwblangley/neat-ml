@@ -6,8 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import jwblangley.neat.evolution.BulkEvaluator;
-import jwblangley.neat.evolution.SingleEvaluator;
 import jwblangley.neat.evolution.Evolution;
+import jwblangley.neat.evolution.SingleEvaluator;
 import jwblangley.neat.genotype.NetworkGenotype;
 
 public class ProtoIO {
@@ -45,8 +45,8 @@ public class ProtoIO {
   }
 
   /**
-   * Read an Evolution object from a file
-   * At least one call to evolve on the new object must happen before statistics are available
+   * Read an Evolution object from a file At least one call to evolve on the new object must happen
+   * before statistics are available
    *
    * @param file                 file to read from
    * @param targetNumSpecies     number of targeted species in the population
@@ -68,12 +68,12 @@ public class ProtoIO {
   }
 
   /**
-   * Read an Evolution object from a file
-   * At least one call to evolve on the new object must happen before statistics are available
+   * Read an Evolution object from a file At least one call to evolve on the new object must happen
+   * before statistics are available
    *
-   * @param file                 file to read from
-   * @param targetNumSpecies     number of targeted species in the population
-   * @param bulkEvaluator        Function to simulate and evaluate a list of genotype
+   * @param file             file to read from
+   * @param targetNumSpecies number of targeted species in the population
+   * @param bulkEvaluator    Function to simulate and evaluate a list of genotype
    * @return Evolution object read from file
    * @throws IOException when reading from the file fails
    */

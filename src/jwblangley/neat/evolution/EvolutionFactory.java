@@ -42,11 +42,11 @@ public class EvolutionFactory {
    * Factory method for creating a new Evolution object with pre-loaded information. Particularly
    * the starting genotype is generated for you.
    *
-   * @param numInputs            number of inputs for the optimisation problem
-   * @param numOutputs           number of outputs for the optimisation problem
-   * @param populationSize       size of the population to evolve
-   * @param targetNumSpecies     the targeted number of species in the population
-   * @param bulkEvaluator        bulk evaluator of genotypes
+   * @param numInputs        number of inputs for the optimisation problem
+   * @param numOutputs       number of outputs for the optimisation problem
+   * @param populationSize   size of the population to evolve
+   * @param targetNumSpecies the targeted number of species in the population
+   * @param bulkEvaluator    bulk evaluator of genotypes
    * @return Constructed Evolution object
    */
   public static Evolution createOptimisation(int numInputs, int numOutputs, int populationSize,
